@@ -1,16 +1,37 @@
-# React + Vite
+# Pustipada Workhub - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+SPA React 19 + TypeScript + Vite untuk Pustipada Workhub.
 
-Currently, two official plugins are available:
+## Perintah
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run typecheck  # cek TypeScript (app + vite config)
+npm run lint       # oxlint
+npm run build      # typecheck + build produksi
+npm run preview    # pratinjau hasil build
+```
 
-## React Compiler
+## Konfigurasi API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Frontend memakai `VITE_API_URL` (default `http://localhost:8000/api`).
+Saat memakai Docker Compose, variabel ini sudah diatur ke
+`http://localhost:8000/api`.
 
-## Expanding the Oxlint configuration
+## Akun demo (seeder backend)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+| Email | Role | Password |
+| --- | --- | --- |
+| `admin@pustipada.test` | admin | `password` |
+| `pimpinan@pustipada.test` | pimpinan | `password` |
+| `anggota@pustipada.test` | anggota | `password` |
+
+## Struktur
+
+- `src/types/api.ts` - tipe response JSON backend
+- `src/api/` - client HTTP + modul endpoint (auth, tasks, users, divisions)
+- `src/auth/` - context & provider autentikasi (token Sanctum)
+- `src/pages/` - halaman utama
+- `src/components/` - layout dan komponen UI
+- `src/lib/` - helper format dan aturan transisi status
