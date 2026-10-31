@@ -1,0 +1,167 @@
+/* Design tokens: the single source of truth for typography, spacing, color,
+   radii, elevation and motion. Components must not declare raw hex values. */
+
+:root {
+  /* Typography */
+  --font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Spacing: 4px scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Radii */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 240ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.3, 1);
+
+  /* Legacy aliases kept until page-level migration completes */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+
+  /* Surfaces and text */
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #eef2f6;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+
+  /* Brand */
+  --primary: #0f766e;
+  --primary-strong: #115e59;
+  --primary-soft: #ccfbf1;
+  --primary-ink: #134e4a;
+  --on-primary: #ffffff;
+  --ring-soft: 0 0 0 3px rgb(13 148 136 / 18%);
+
+  /* Feedback */
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --danger-soft: #fee2e2;
+  --on-destructive: #ffffff;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --info: #0369a1;
+  --info-soft: #e0f2fe;
+
+  /* Sidebar and overlay */
+  --sidebar: #0b2a2a;
+  --sidebar-text: #e2f5f1;
+  --sidebar-muted: #8fbcb5;
+  --sidebar-active: #5eead4;
+  --sidebar-line: rgb(255 255 255 / 10%);
+  --sidebar-line-strong: rgb(255 255 255 / 18%);
+  --sidebar-hover: rgb(255 255 255 / 6%);
+  --scrim: rgb(2 18 27 / 55%);
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+  --shadow-md: 0 10px 30px -12px rgb(15 23 42 / 18%);
+  --shadow-pop: 0 24px 60px -24px rgb(2 18 27 / 45%);
+
+  /* Semantic badge tones */
+  --tone-neutral-bg: #f1f5f9;
+  --tone-neutral-fg: #475569;
+  --tone-info-bg: #e0f2fe;
+  --tone-info-fg: #0369a1;
+  --tone-warning-bg: #fef3c7;
+  --tone-warning-fg: #b45309;
+  --tone-success-bg: #dcfce7;
+  --tone-success-fg: #15803d;
+  --tone-danger-bg: #fee2e2;
+  --tone-danger-fg: #b91c1c;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --surface: #111a2c;
+    --surface-2: #0f172a;
+    --surface-3: #16223a;
+    --border: #1f2d47;
+    --border-strong: #2c3e5e;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-soft: #64748b;
+
+    --primary: #2dd4bf;
+    --primary-strong: #5eead4;
+    --primary-soft: #134e4a;
+    --primary-ink: #99f6e4;
+    --on-primary: #03201d;
+    --ring-soft: 0 0 0 3px rgb(45 212 191 / 22%);
+
+    --danger: #f87171;
+    --danger-strong: #fca5a5;
+    --danger-soft: rgb(239 68 68 / 14%);
+    --on-destructive: #1f0a0a;
+    --warning: #fbbf24;
+    --warning-soft: rgb(245 158 11 / 14%);
+    --success: #4ade80;
+    --success-soft: rgb(34 197 94 / 14%);
+    --info: #38bdf8;
+    --info-soft: rgb(14 165 233 / 14%);
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-md: 0 20px 40px -18px rgb(0 0 0 / 70%);
+    --shadow-pop: 0 24px 60px -20px rgb(0 0 0 / 75%);
+
+    --tone-neutral-bg: rgb(148 163 184 / 16%);
+    --tone-neutral-fg: #cbd5e1;
+    --tone-info-bg: rgb(14 165 233 / 16%);
+    --tone-info-fg: #7dd3fc;
+    --tone-warning-bg: rgb(245 158 11 / 16%);
+    --tone-warning-fg: #fcd34d;
+    --tone-success-bg: rgb(34 197 94 / 16%);
+    --tone-success-fg: #86efac;
+    --tone-danger-bg: rgb(239 68 68 / 16%);
+    --tone-danger-fg: #fca5a5;
+
+    color-scheme: dark;
+  }
+}

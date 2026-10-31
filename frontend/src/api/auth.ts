@@ -1,4 +1,10 @@
-import type { LoginResponse, MessageResponse, Resource, User } from '../types/api'
+import type {
+  LoginResponse,
+  MessageResponse,
+  RegisterInput,
+  Resource,
+  User,
+} from '../types/api'
 import { apiFetch } from './client'
 
 export interface LoginInput {
@@ -8,6 +14,14 @@ export interface LoginInput {
 
 export function login(input: LoginInput): Promise<LoginResponse> {
   return apiFetch<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: input,
+    auth: false,
+  })
+}
+
+export function register(input: RegisterInput): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>('/auth/register', {
     method: 'POST',
     body: input,
     auth: false,

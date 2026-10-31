@@ -23,6 +23,12 @@ export interface Division {
   updated_at: string | null
 }
 
+export interface PublicDivision {
+  id: number
+  name: string
+  code: string
+}
+
 export interface User {
   id: number
   name: string
@@ -109,6 +115,14 @@ export interface LoginResponse {
   token: string
   token_type: 'Bearer'
   user: User
+}
+
+export interface RegisterInput {
+  name: string
+  email: string
+  password: string
+  password_confirmation: string
+  division_id: number
 }
 
 export interface MessageResponse {

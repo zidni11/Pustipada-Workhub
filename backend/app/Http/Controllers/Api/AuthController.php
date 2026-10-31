@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,24 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $attributes = $request->validated();
+
+        User::create([
+            'name' => $attributes['name'],
+            'email' => $attributes['email'],
+            'password' => $attributes['password'],
+            'division_id' => $attributes['division_id'],
+            'role' => 'anggota',
+            'is_active' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Pendaftaran berhasil. Silakan tunggu aktivasi akun oleh Admin.',
+        ], 201);
+    }
+
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->validated();
@@ -27,7 +46,7 @@ class AuthController extends Controller
 
         if (! $user->is_active) {
             return response()->json([
-                'message' => 'Akun Anda tidak aktif. Hubungi admin.',
+                'message' => 'Akun Anda belum aktif atau masih menunggu persetujuan Admin.',
             ], 403);
         }
 

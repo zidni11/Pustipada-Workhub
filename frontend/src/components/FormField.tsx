@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Field } from './ui/Field'
 
 interface FormFieldProps {
   label: string
@@ -9,13 +10,6 @@ interface FormFieldProps {
   className?: string
 }
 
-export function FormField({ label, htmlFor, error, hint, children, className }: FormFieldProps) {
-  return (
-    <div className={className ? `form-field ${className}` : 'form-field'}>
-      <label htmlFor={htmlFor}>{label}</label>
-      {children}
-      {hint ? <p className="form-hint">{hint}</p> : null}
-      {error ? <p className="form-error">{error}</p> : null}
-    </div>
-  )
+export function FormField(props: FormFieldProps) {
+  return <Field {...props} />
 }

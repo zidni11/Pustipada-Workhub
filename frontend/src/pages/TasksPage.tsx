@@ -1,12 +1,23 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { listDivisions } from '../api/divisions'
 import { listTasks } from '../api/tasks'
 import { listAllUsers } from '../api/users'
 import { PriorityBadge, StatusBadge } from '../components/Badges'
+import {
+  CellMeta,
+  CellMono,
+  CellStack,
+  CellTitle,
+  DataTable,
+  type DataColumn,
+} from '../components/DataTable'
+import { ListToolbar } from '../components/ListToolbar'
 import { PageHeader } from '../components/PageHeader'
 import { EmptyState, ErrorState, LoadingState } from '../components/PageState'
 import { Pagination } from '../components/Pagination'
 import { TaskFormModal } from '../components/TaskFormModal'
+import { Button } from '../components/ui/Button'
+import { Surface } from '../components/ui/Surface'
 import { useAsync } from '../hooks/useAsync'
 import { useAuth } from '../hooks/useAuth'
 import { navigate, routePaths } from '../hooks/useHashRoute'
@@ -45,8 +56,7 @@ export function TasksPage() {
     [search, status, divisionId, page],
   )
 
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const handleSearch = () => {
     setPage(1)
     setSearch(searchInput.trim())
   }
@@ -57,6 +67,45 @@ export function TasksPage() {
     navigate(routePaths.task(task.id))
   }
 
+  const columns: Array<DataColumn<Task>> = [
+    {
+      key: 'title',
+      header: 'Tugas',
+      render: (task) => (
+        <CellStack>
+          <CellTitle href={`#${routePaths.task(task.id)}`}>{task.title}</CellTitle>
+          <CellMeta>{task.description ?? 'Tanpa deskripsi'}</CellMeta>
+        </CellStack>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (task) => <StatusBadge status={task.status} />,
+    },
+    {
+      key: 'pic',
+      header: 'PIC',
+      render: (task) => task.pic?.name ?? '—',
+    },
+    {
+      key: 'division',
+      header: 'Divisi',
+      render: (task) => task.division.name,
+    },
+    {
+      key: 'priority',
+      header: 'Prioritas',
+      render: (task) => <PriorityBadge priority={task.priority} />,
+    },
+    {
+      key: 'due',
+      header: 'Tenggat',
+      align: 'right',
+      render: (task) => <CellMono>{formatDate(task.due_date)}</CellMono>,
+    },
+  ]
+
   return (
     <>
       <PageHeader
@@ -64,62 +113,54 @@ export function TasksPage() {
         description="Daftar pekerjaan, penanggung jawab, dan progresnya."
         actions={
           canManage ? (
-            <button type="button" className="button button-primary" onClick={() => setShowForm(true)}>
-              Tugas Baru
-            </button>
+            <Button onClick={() => setShowForm(true)}>Tugas Baru</Button>
           ) : null
         }
       />
 
-      <section className="panel">
-        <div className="toolbar">
-          <form className="toolbar-search" onSubmit={handleSearch}>
-            <input
-              type="search"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Cari judul tugas..."
-              aria-label="Cari tugas"
-            />
-            <button type="submit" className="button button-ghost">
-              Cari
-            </button>
-          </form>
+      <Surface padding="none">
+        <ListToolbar
+          query={searchInput}
+          onQueryChange={setSearchInput}
+          onSearch={handleSearch}
+          placeholder="Cari judul tugas..."
+          searchLabel="Cari tugas"
+          filters={
+            <>
+              <select
+                value={status}
+                onChange={(event) => {
+                  setStatus(event.target.value as TaskStatus | '')
+                  setPage(1)
+                }}
+                aria-label="Filter status"
+              >
+                <option value="">Semua status</option>
+                {TASK_STATUS_ORDER.map((value) => (
+                  <option key={value} value={value}>
+                    {TASK_STATUS_LABELS[value]}
+                  </option>
+                ))}
+              </select>
 
-          <div className="toolbar-filters">
-            <select
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value as TaskStatus | '')
-                setPage(1)
-              }}
-              aria-label="Filter status"
-            >
-              <option value="">Semua status</option>
-              {TASK_STATUS_ORDER.map((value) => (
-                <option key={value} value={value}>
-                  {TASK_STATUS_LABELS[value]}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={divisionId}
-              onChange={(event) => {
-                setDivisionId(event.target.value)
-                setPage(1)
-              }}
-              aria-label="Filter divisi"
-            >
-              <option value="">Semua divisi</option>
-              {(divisions.data?.data ?? []).map((division) => (
-                <option key={division.id} value={division.id}>
-                  {division.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+              <select
+                value={divisionId}
+                onChange={(event) => {
+                  setDivisionId(event.target.value)
+                  setPage(1)
+                }}
+                aria-label="Filter divisi"
+              >
+                <option value="">Semua divisi</option>
+                {(divisions.data?.data ?? []).map((division) => (
+                  <option key={division.id} value={division.id}>
+                    {division.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          }
+        />
 
         {tasks.loading ? (
           <LoadingState label="Memuat tugas..." />
@@ -132,52 +173,12 @@ export function TasksPage() {
           />
         ) : (
           <>
-            <div className="table-wrap">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Tugas</th>
-                    <th>Status</th>
-                    <th>PIC</th>
-                    <th>Divisi</th>
-                    <th>Prioritas</th>
-                    <th>Tenggat</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tasks.data?.data.map((task) => (
-                    <tr
-                      key={task.id}
-                      className="clickable-row"
-                      onClick={() => navigate(routePaths.task(task.id))}
-                    >
-                      <td>
-                        <a
-                          className="table-title"
-                          href={`#${routePaths.task(task.id)}`}
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {task.title}
-                        </a>
-                        <span className="table-subtitle">
-                          {task.description ?? 'Tanpa deskripsi'}
-                        </span>
-                      </td>
-                      <td>
-                        <StatusBadge status={task.status} />
-                      </td>
-                      <td>{task.pic?.name ?? '—'}</td>
-                      <td>{task.division.name}</td>
-                      <td>
-                        <PriorityBadge priority={task.priority} />
-                      </td>
-                      <td>{formatDate(task.due_date)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
+            <DataTable
+              label="Daftar tugas"
+              rows={tasks.data?.data ?? []}
+              columns={columns}
+              getRowKey={(task) => task.id}
+            />
             {tasks.data ? (
               <Pagination
                 meta={tasks.data.meta}
@@ -186,7 +187,7 @@ export function TasksPage() {
             ) : null}
           </>
         )}
-      </section>
+      </Surface>
 
       {showForm && user ? (
         <TaskFormModal

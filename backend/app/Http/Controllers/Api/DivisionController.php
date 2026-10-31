@@ -20,6 +20,16 @@ class DivisionController extends Controller
         );
     }
 
+    public function publicIndex(): JsonResponse
+    {
+        $divisions = Division::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code']);
+
+        return response()->json(['data' => $divisions]);
+    }
+
     public function store(StoreDivisionRequest $request): JsonResponse
     {
         $division = Division::create($request->validated());

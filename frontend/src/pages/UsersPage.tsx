@@ -1,15 +1,30 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { getErrorMessage } from '../api/client'
 import { listDivisions } from '../api/divisions'
-import { deleteUser, listUsers } from '../api/users'
+import { deleteUser, listUsers, updateUser } from '../api/users'
 import { Avatar } from '../components/Avatar'
-import { ActiveBadge, RoleBadge } from '../components/Badges'
+import { RoleBadge, UserStatusBadge } from '../components/Badges'
+import {
+  CellMeta,
+  CellPerson,
+  CellStack,
+  CellTitle,
+  DataTable,
+  RowActions,
+  type DataColumn,
+} from '../components/DataTable'
+import { ListToolbar } from '../components/ListToolbar'
 import { PageHeader } from '../components/PageHeader'
 import { EmptyState, ErrorState, LoadingState } from '../components/PageState'
 import { Pagination } from '../components/Pagination'
 import { UserFormModal } from '../components/UserFormModal'
+import { Button } from '../components/ui/Button'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { Notice } from '../components/ui/Notice'
+import { Surface } from '../components/ui/Surface'
 import { useAsync } from '../hooks/useAsync'
 import type { User, UserRole } from '../types/api'
+import styles from './UsersPage.module.css'
 
 type UserModalState = { mode: 'create' } | { mode: 'edit'; user: User } | null
 
@@ -27,7 +42,11 @@ export function UsersPage() {
   const [role, setRole] = useState<UserRole | ''>('')
   const [page, setPage] = useState(1)
   const [modal, setModal] = useState<UserModalState>(null)
+  const [pendingDelete, setPendingDelete] = useState<User | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [activatingId, setActivatingId] = useState<number | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
 
   const users = useAsync(
     () =>
@@ -40,26 +59,116 @@ export function UsersPage() {
   )
   const divisions = useAsync(() => listDivisions(), [])
 
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const handleSearch = () => {
     setPage(1)
     setSearch(searchInput.trim())
   }
 
-  const handleDelete = async (user: User) => {
-    if (!window.confirm(`Hapus akun ${user.name}?`)) {
-      return
-    }
-
+  const handleActivate = async (user: User) => {
+    setActivatingId(user.id)
     setActionError(null)
+    setActionSuccess(null)
 
     try {
-      await deleteUser(user.id)
+      await updateUser(user.id, { is_active: true })
+      setActionSuccess(`Akun ${user.name} berhasil diaktifkan.`)
       users.reload()
     } catch (error) {
       setActionError(getErrorMessage(error))
+    } finally {
+      setActivatingId(null)
     }
   }
+
+  const handleDelete = async () => {
+    if (!pendingDelete) {
+      return
+    }
+
+    setDeleting(true)
+    setActionError(null)
+
+    try {
+      await deleteUser(pendingDelete.id)
+      setPendingDelete(null)
+
+      if ((users.data?.data.length ?? 0) === 1 && page > 1) {
+        setPage(page - 1)
+      } else {
+        users.reload()
+      }
+    } catch (error) {
+      setActionError(getErrorMessage(error))
+      setPendingDelete(null)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const columns: Array<DataColumn<User>> = [
+    {
+      key: 'user',
+      header: 'Pengguna',
+      render: (user) => (
+        <CellPerson>
+          <Avatar name={user.name} />
+          <CellStack>
+            <CellTitle>{user.name}</CellTitle>
+            <CellMeta>{user.email}</CellMeta>
+          </CellStack>
+        </CellPerson>
+      ),
+    },
+    {
+      key: 'role',
+      header: 'Role',
+      render: (user) => <RoleBadge role={user.role} />,
+    },
+    {
+      key: 'division',
+      header: 'Divisi',
+      render: (user) => user.division?.name ?? '—',
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (user) => <UserStatusBadge active={user.is_active} />,
+    },
+    {
+      key: 'actions',
+      header: 'Aksi',
+      align: 'right',
+      render: (user) => (
+        <RowActions>
+          {user.is_active ? null : (
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={activatingId === user.id}
+              onClick={() => handleActivate(user)}
+            >
+              Aktifkan
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setModal({ mode: 'edit', user })}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={styles.dangerAction}
+            onClick={() => setPendingDelete(user)}
+          >
+            Hapus
+          </Button>
+        </RowActions>
+      ),
+    },
+  ]
 
   return (
     <>
@@ -67,32 +176,18 @@ export function UsersPage() {
         title="Pengguna"
         description="Kelola akun, role, divisi, dan status aktif pengguna."
         actions={
-          <button
-            type="button"
-            className="button button-primary"
-            onClick={() => setModal({ mode: 'create' })}
-          >
-            Pengguna Baru
-          </button>
+          <Button onClick={() => setModal({ mode: 'create' })}>Pengguna Baru</Button>
         }
       />
 
-      <section className="panel">
-        <div className="toolbar">
-          <form className="toolbar-search" onSubmit={handleSearch}>
-            <input
-              type="search"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Cari nama atau email..."
-              aria-label="Cari pengguna"
-            />
-            <button type="submit" className="button button-ghost">
-              Cari
-            </button>
-          </form>
-
-          <div className="toolbar-filters">
+      <Surface padding="none">
+        <ListToolbar
+          query={searchInput}
+          onQueryChange={setSearchInput}
+          onSearch={handleSearch}
+          placeholder="Cari nama atau email..."
+          searchLabel="Cari pengguna"
+          filters={
             <select
               value={role}
               onChange={(event) => {
@@ -108,10 +203,18 @@ export function UsersPage() {
                 </option>
               ))}
             </select>
-          </div>
-        </div>
+          }
+        />
 
-        {actionError ? <div className="alert alert-error">{actionError}</div> : null}
+        {actionError ? (
+          <Notice className={styles.notice}>{actionError}</Notice>
+        ) : null}
+
+        {actionSuccess ? (
+          <Notice tone="success" className={styles.notice}>
+            {actionSuccess}
+          </Notice>
+        ) : null}
 
         {users.loading ? (
           <LoadingState label="Memuat pengguna..." />
@@ -121,58 +224,12 @@ export function UsersPage() {
           <EmptyState title="Tidak ada pengguna" description="Belum ada akun yang cocok." />
         ) : (
           <>
-            <div className="table-wrap">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Pengguna</th>
-                    <th>Role</th>
-                    <th>Divisi</th>
-                    <th>Status</th>
-                    <th className="cell-actions">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.data?.data.map((user) => (
-                    <tr key={user.id}>
-                      <td>
-                        <span className="person-inline">
-                          <Avatar name={user.name} />
-                          <span>
-                            <span className="table-title">{user.name}</span>
-                            <span className="table-subtitle">{user.email}</span>
-                          </span>
-                        </span>
-                      </td>
-                      <td>
-                        <RoleBadge role={user.role} />
-                      </td>
-                      <td>{user.division?.name ?? '—'}</td>
-                      <td>
-                        <ActiveBadge active={user.is_active} />
-                      </td>
-                      <td className="cell-actions">
-                        <button
-                          type="button"
-                          className="button button-ghost button-small"
-                          onClick={() => setModal({ mode: 'edit', user })}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="button button-danger-outline button-small"
-                          onClick={() => handleDelete(user)}
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
+            <DataTable
+              label="Daftar pengguna"
+              rows={users.data?.data ?? []}
+              columns={columns}
+              getRowKey={(user) => user.id}
+            />
             {users.data ? (
               <Pagination
                 meta={users.data.meta}
@@ -181,7 +238,7 @@ export function UsersPage() {
             ) : null}
           </>
         )}
-      </section>
+      </Surface>
 
       {modal ? (
         <UserFormModal
@@ -192,6 +249,17 @@ export function UsersPage() {
             setModal(null)
             users.reload()
           }}
+        />
+      ) : null}
+
+      {pendingDelete ? (
+        <ConfirmDialog
+          title="Hapus pengguna?"
+          message={`Akun ${pendingDelete.name} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`}
+          confirmLabel="Hapus pengguna"
+          busy={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setPendingDelete(null)}
         />
       ) : null}
     </>

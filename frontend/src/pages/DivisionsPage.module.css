@@ -1,0 +1,12 @@
+.notice {
+  margin: var(--space-4) var(--space-4) 0;
+}
+
+.dangerAction.dangerAction {
+  color: var(--danger);
+}
+
+.dangerAction.dangerAction:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--danger-strong);
+}

@@ -4,6 +4,9 @@ import { createUser, updateUser } from '../api/users'
 import type { Division, User, UserRole } from '../types/api'
 import { FormField } from './FormField'
 import { Modal } from './Modal'
+import { Button } from './ui/Button'
+import { CheckboxField, FormRow, FormStack } from './ui/FormLayout'
+import { Notice } from './ui/Notice'
 
 interface UserFormModalProps {
   user?: User
@@ -98,20 +101,20 @@ export function UserFormModal({ user, divisions, onClose, onSaved }: UserFormMod
     <Modal
       title={user ? 'Edit Pengguna' : 'Pengguna Baru'}
       subtitle={user ? 'Perbarui data akun pengguna.' : 'Buat akun baru untuk tim.'}
-      onClose={onClose}
+      onClose={saving ? () => undefined : onClose}
       footer={
         <>
-          <button type="button" className="button button-ghost" onClick={onClose} disabled={saving}>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>
             Batal
-          </button>
-          <button type="submit" form="user-form" className="button button-primary" disabled={saving}>
-            {saving ? 'Menyimpan...' : 'Simpan Pengguna'}
-          </button>
+          </Button>
+          <Button type="submit" form="user-form" loading={saving}>
+            Simpan Pengguna
+          </Button>
         </>
       }
     >
-      <form id="user-form" className="form-grid" onSubmit={handleSubmit}>
-        {error ? <div className="alert alert-error">{error}</div> : null}
+      <FormStack id="user-form" onSubmit={handleSubmit}>
+        {error ? <Notice>{error}</Notice> : null}
 
         <FormField label="Nama" htmlFor="user-name" error={fieldErrors.name?.[0]}>
           <input
@@ -151,7 +154,7 @@ export function UserFormModal({ user, divisions, onClose, onSaved }: UserFormMod
           />
         </FormField>
 
-        <div className="form-row">
+        <FormRow>
           <FormField label="Role" htmlFor="user-role" error={fieldErrors.role?.[0]}>
             <select
               id="user-role"
@@ -181,20 +184,16 @@ export function UserFormModal({ user, divisions, onClose, onSaved }: UserFormMod
               ))}
             </select>
           </FormField>
-        </div>
+        </FormRow>
 
-        <label className="checkbox-row">
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={(event) => setIsActive(event.target.checked)}
-          />
-          <span>
-            Akun aktif
-            <small>Pengguna nonaktif tidak bisa login.</small>
-          </span>
-        </label>
-      </form>
+        <CheckboxField
+          id="user-active"
+          checked={isActive}
+          onChange={(event) => setIsActive(event.target.checked)}
+          label="Akun aktif"
+          hint="Pengguna nonaktif tidak bisa login."
+        />
+      </FormStack>
     </Modal>
   )
 }

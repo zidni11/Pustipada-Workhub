@@ -4,6 +4,9 @@ import { createDivision, updateDivision } from '../api/divisions'
 import type { Division } from '../types/api'
 import { FormField } from './FormField'
 import { Modal } from './Modal'
+import { Button } from './ui/Button'
+import { CheckboxField, FormRow, FormStack } from './ui/FormLayout'
+import { Notice } from './ui/Notice'
 
 interface DivisionFormModalProps {
   division?: Division
@@ -70,27 +73,22 @@ export function DivisionFormModal({ division, onClose, onSaved }: DivisionFormMo
     <Modal
       title={division ? 'Edit Divisi' : 'Divisi Baru'}
       subtitle={division ? 'Perbarui data divisi.' : 'Tambahkan divisi baru.'}
-      onClose={onClose}
+      onClose={saving ? () => undefined : onClose}
       footer={
         <>
-          <button type="button" className="button button-ghost" onClick={onClose} disabled={saving}>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>
             Batal
-          </button>
-          <button
-            type="submit"
-            form="division-form"
-            className="button button-primary"
-            disabled={saving}
-          >
-            {saving ? 'Menyimpan...' : 'Simpan Divisi'}
-          </button>
+          </Button>
+          <Button type="submit" form="division-form" loading={saving}>
+            Simpan Divisi
+          </Button>
         </>
       }
     >
-      <form id="division-form" className="form-grid" onSubmit={handleSubmit}>
-        {error ? <div className="alert alert-error">{error}</div> : null}
+      <FormStack id="division-form" onSubmit={handleSubmit}>
+        {error ? <Notice>{error}</Notice> : null}
 
-        <div className="form-row">
+        <FormRow>
           <FormField label="Nama divisi" htmlFor="division-name" error={fieldErrors.name?.[0]}>
             <input
               id="division-name"
@@ -115,7 +113,7 @@ export function DivisionFormModal({ division, onClose, onSaved }: DivisionFormMo
               required
             />
           </FormField>
-        </div>
+        </FormRow>
 
         <FormField label="Deskripsi" htmlFor="division-description" error={fieldErrors.description?.[0]}>
           <textarea
@@ -126,15 +124,13 @@ export function DivisionFormModal({ division, onClose, onSaved }: DivisionFormMo
           />
         </FormField>
 
-        <label className="checkbox-row">
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={(event) => setIsActive(event.target.checked)}
-          />
-          <span>Divisi aktif</span>
-        </label>
-      </form>
+        <CheckboxField
+          id="division-active"
+          checked={isActive}
+          onChange={(event) => setIsActive(event.target.checked)}
+          label="Divisi aktif"
+        />
+      </FormStack>
     </Modal>
   )
 }

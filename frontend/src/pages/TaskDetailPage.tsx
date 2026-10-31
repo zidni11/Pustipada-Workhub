@@ -5,9 +5,17 @@ import { deleteTask, getTask, transitionTask } from '../api/tasks'
 import { listAllUsers } from '../api/users'
 import { Avatar } from '../components/Avatar'
 import { PriorityBadge, StatusBadge } from '../components/Badges'
+import { FormField } from '../components/FormField'
 import { PageHeader } from '../components/PageHeader'
 import { ErrorState, LoadingState } from '../components/PageState'
+import { Section } from '../components/Section'
 import { TaskFormModal } from '../components/TaskFormModal'
+import { ArrowLeftIcon, ArrowRightIcon } from '../components/ui/Arrows'
+import { Button } from '../components/ui/Button'
+import { ButtonLink } from '../components/ui/ButtonLink'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { Notice } from '../components/ui/Notice'
+import { Surface } from '../components/ui/Surface'
 import { useAsync } from '../hooks/useAsync'
 import { useAuth } from '../hooks/useAuth'
 import { navigate, routePaths } from '../hooks/useHashRoute'
@@ -19,6 +27,7 @@ import {
   transitionLabel,
 } from '../lib/tasks'
 import type { Task, TaskStatus } from '../types/api'
+import styles from './TaskDetailPage.module.css'
 
 export function TaskDetailPage({ id }: { id: number }) {
   const { user } = useAuth()
@@ -33,6 +42,8 @@ export function TaskDetailPage({ id }: { id: number }) {
   const [editing, setEditing] = useState(false)
   const [note, setNote] = useState('')
   const [pendingStatus, setPendingStatus] = useState<TaskStatus | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
   if (!user) {
@@ -45,7 +56,9 @@ export function TaskDetailPage({ id }: { id: number }) {
     return (
       <>
         <BackLink />
-        <LoadingState label="Memuat detail tugas..." />
+        <Surface padding="none">
+          <LoadingState label="Memuat detail tugas..." />
+        </Surface>
       </>
     )
   }
@@ -54,10 +67,12 @@ export function TaskDetailPage({ id }: { id: number }) {
     return (
       <>
         <BackLink />
-        <ErrorState
-          message={taskResult.error ?? 'Tugas tidak ditemukan.'}
-          onRetry={taskResult.reload}
-        />
+        <Surface padding="none">
+          <ErrorState
+            message={taskResult.error ?? 'Tugas tidak ditemukan.'}
+            onRetry={taskResult.reload}
+          />
+        </Surface>
       </>
     )
   }
@@ -89,10 +104,7 @@ export function TaskDetailPage({ id }: { id: number }) {
   }
 
   const handleDelete = async () => {
-    if (!window.confirm('Hapus tugas ini? Tindakan ini tidak bisa dibatalkan.')) {
-      return
-    }
-
+    setDeleting(true)
     setActionError(null)
 
     try {
@@ -100,6 +112,9 @@ export function TaskDetailPage({ id }: { id: number }) {
       navigate(routePaths.tasks)
     } catch (error) {
       setActionError(getErrorMessage(error))
+      setConfirmingDelete(false)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -112,92 +127,96 @@ export function TaskDetailPage({ id }: { id: number }) {
         description={`Dibuat oleh ${task.creator.name} pada ${formatDateTime(task.created_at)}`}
         actions={
           canManage ? (
-            <div className="page-header-actions">
-              <button
-                type="button"
-                className="button button-ghost"
-                onClick={() => setEditing(true)}
-              >
+            <>
+              <Button variant="secondary" onClick={() => setEditing(true)}>
                 Edit
-              </button>
-              <button type="button" className="button button-danger" onClick={handleDelete}>
+              </Button>
+              <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
                 Hapus
-              </button>
-            </div>
+              </Button>
+            </>
           ) : null
         }
       />
 
-      <div className="detail-badges">
+      <div className={styles.badges}>
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
       </div>
 
-      {actionError && !allowedTransitions.length ? (
-        <div className="alert alert-error">{actionError}</div>
+      {actionError ? (
+        <Notice className={styles.notice}>{actionError}</Notice>
       ) : null}
 
-      <div className="detail-grid">
-        <div className="detail-main">
-          <section className="panel">
-            <h2>Deskripsi</h2>
-            <p className="pre-line">{task.description ?? 'Belum ada deskripsi.'}</p>
-          </section>
+      <div className={styles.grid}>
+        <div className={styles.main}>
+          <Section title="Deskripsi">
+            <p className={styles.description}>
+              {task.description ?? 'Belum ada deskripsi.'}
+            </p>
+          </Section>
 
-          <section className="panel">
-            <h2>Aktivitas</h2>
+          <Section title="Aktivitas" description="Riwayat pembuatan dan perubahan status.">
             {activities.length === 0 ? (
-              <p className="muted">Belum ada aktivitas.</p>
+              <p className={styles.muted}>Belum ada aktivitas.</p>
             ) : (
-              <ol className="timeline">
+              <ol className={styles.timeline}>
                 {activities.map((activity) => (
-                  <li key={activity.id} className="timeline-item">
-                    <span className="timeline-dot" aria-hidden="true" />
-                    <div className="timeline-content">
-                      <p>
+                  <li key={activity.id} className={styles.timelineItem}>
+                    <span className={styles.marker} aria-hidden="true" />
+                    <div className={styles.timelineBody}>
+                      <p className={styles.activityTitle}>
                         <strong>{activity.user?.name ?? 'Sistem'}</strong>{' '}
                         {activity.action === 'created'
                           ? 'membuat tugas'
                           : 'mengubah status'}
                       </p>
                       {activity.action === 'status_changed' ? (
-                        <p className="timeline-status">
-                          {activity.from_status
-                            ? TASK_STATUS_LABELS[activity.from_status]
-                            : '—'}{' '}
-                          →{' '}
-                          {activity.to_status
-                            ? TASK_STATUS_LABELS[activity.to_status]
-                            : '—'}
+                        <p className={styles.statusChange}>
+                          <span>
+                            {activity.from_status
+                              ? TASK_STATUS_LABELS[activity.from_status]
+                              : '—'}
+                          </span>
+                          <span className={styles.arrow} aria-hidden="true">
+                            <ArrowRightIcon size={12} />
+                          </span>
+                          <span>
+                            {activity.to_status
+                              ? TASK_STATUS_LABELS[activity.to_status]
+                              : '—'}
+                          </span>
                         </p>
                       ) : null}
                       {activity.note ? (
-                        <p className="timeline-note">&ldquo;{activity.note}&rdquo;</p>
+                        <p className={styles.note}>{activity.note}</p>
                       ) : null}
-                      <span className="timeline-time">
+                      <time
+                        className={styles.time}
+                        dateTime={activity.created_at ?? undefined}
+                      >
                         {formatDateTime(activity.created_at)}
-                      </span>
+                      </time>
                     </div>
                   </li>
                 ))}
               </ol>
             )}
-          </section>
+          </Section>
         </div>
 
-        <aside className="detail-side">
-          <section className="panel">
-            <h2>Informasi</h2>
-            <dl className="detail-list">
-              <div>
+        <aside className={styles.side}>
+          <Section title="Informasi">
+            <dl className={styles.infoList}>
+              <div className={styles.infoRow}>
                 <dt>Divisi</dt>
                 <dd>{task.division.name}</dd>
               </div>
-              <div>
+              <div className={styles.infoRow}>
                 <dt>PIC</dt>
                 <dd>
                   {task.pic ? (
-                    <span className="person-inline">
+                    <span className={styles.person}>
                       <Avatar name={task.pic.name} />
                       {task.pic.name}
                     </span>
@@ -206,81 +225,79 @@ export function TaskDetailPage({ id }: { id: number }) {
                   )}
                 </dd>
               </div>
-              <div>
+              <div className={styles.infoRow}>
                 <dt>Tenggat</dt>
-                <dd>{formatDate(task.due_date)}</dd>
+                <dd className={styles.mono}>{formatDate(task.due_date)}</dd>
               </div>
-              <div>
+              <div className={styles.infoRow}>
                 <dt>Selesai</dt>
-                <dd>{formatDateTime(task.completed_at)}</dd>
+                <dd className={styles.mono}>{formatDateTime(task.completed_at)}</dd>
               </div>
             </dl>
-          </section>
+          </Section>
 
-          <section className="panel">
-            <h2>Anggota pendukung</h2>
+          <Section title="Anggota pendukung">
             {task.members.length === 0 ? (
-              <p className="muted">Belum ada anggota pendukung.</p>
+              <p className={styles.muted}>Belum ada anggota pendukung.</p>
             ) : (
-              <ul className="people-list compact">
+              <ul className={styles.memberList}>
                 {task.members.map((member) => (
-                  <li key={member.id}>
+                  <li key={member.id} className={styles.memberRow}>
                     <Avatar name={member.name} />
-                    <div>
+                    <span className={styles.memberText}>
                       <strong>{member.name}</strong>
                       <span>{member.division?.name ?? 'Tanpa divisi'}</span>
-                    </div>
+                    </span>
                   </li>
                 ))}
               </ul>
             )}
-          </section>
+          </Section>
 
           {allowedTransitions.length > 0 ? (
-            <section className="panel panel-accent">
-              <h2>Ubah status</h2>
-              <p className="muted">
-                {user.role === 'pimpinan'
+            <Section
+              title="Ubah status"
+              description={
+                user.role === 'pimpinan'
                   ? 'Sebagai pimpinan Anda dapat memindahkan status sesuai alur.'
-                  : 'Anda hanya dapat memindahkan status tugas yang di-assign kepada Anda.'}
-              </p>
-              <textarea
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                rows={3}
-                placeholder="Catatan untuk perubahan status (opsional)"
-                aria-label="Catatan perubahan status"
-              />
-              {actionError ? <p className="form-error">{actionError}</p> : null}
-              <div className="transition-actions">
+                  : 'Anda hanya dapat memindahkan status tugas yang di-assign kepada Anda.'
+              }
+            >
+              <FormField
+                label="Catatan perubahan"
+                htmlFor="task-status-note"
+                hint="Opsional, tersimpan pada riwayat aktivitas."
+              >
+                <textarea
+                  id="task-status-note"
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  rows={3}
+                  placeholder="Alasan atau konteks perubahan status"
+                />
+              </FormField>
+              <div className={styles.transitions}>
                 {allowedTransitions.map((target) => (
-                  <button
+                  <Button
                     key={target}
-                    type="button"
-                    className={
-                      target === 'cancelled'
-                        ? 'button button-danger-outline'
-                        : 'button button-primary'
-                    }
+                    variant={target === 'cancelled' ? 'danger' : 'primary'}
                     disabled={pendingStatus !== null}
+                    loading={pendingStatus === target}
                     onClick={() => handleTransition(target)}
                   >
-                    {pendingStatus === target
-                      ? 'Memproses...'
-                      : transitionLabel(task.status, target)}
-                  </button>
+                    {transitionLabel(task.status, target)}
+                  </Button>
                 ))}
               </div>
-            </section>
+            </Section>
           ) : (
-            <section className="panel panel-muted">
-              <h2>Status</h2>
-              <p className="muted">
+            <Section title="Status">
+              <p className={styles.muted}>
                 {task.status === 'completed' || task.status === 'cancelled'
                   ? 'Tugas sudah berada di status akhir.'
                   : 'Tidak ada transisi status yang tersedia untuk Anda.'}
               </p>
-            </section>
+            </Section>
           )}
         </aside>
       </div>
@@ -297,14 +314,31 @@ export function TaskDetailPage({ id }: { id: number }) {
           }}
         />
       ) : null}
+
+      {confirmingDelete ? (
+        <ConfirmDialog
+          title="Hapus tugas?"
+          message={`Tugas ${task.title} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`}
+          confirmLabel="Hapus tugas"
+          busy={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmingDelete(false)}
+        />
+      ) : null}
     </>
   )
 }
 
 function BackLink() {
   return (
-    <a className="back-link" href="#/tasks">
-      <span aria-hidden="true">←</span> Kembali ke daftar tugas
-    </a>
+    <ButtonLink
+      className={styles.back}
+      href="#/tasks"
+      variant="ghost"
+      size="sm"
+      leadingIcon={<ArrowLeftIcon />}
+    >
+      Kembali ke daftar tugas
+    </ButtonLink>
   )
 }

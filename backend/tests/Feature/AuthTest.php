@@ -57,7 +57,11 @@ class AuthTest extends TestCase
         $this->postJson('/api/auth/login', [
             'email' => 'nonaktif@example.com',
             'password' => 'password',
-        ])->assertForbidden();
+        ])->assertForbidden()
+            ->assertJsonPath(
+                'message',
+                'Akun Anda belum aktif atau masih menunggu persetujuan Admin.',
+            );
     }
 
     public function test_user_can_logout_and_revoke_token(): void

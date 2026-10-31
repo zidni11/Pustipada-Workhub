@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
-import './App.css'
+import styles from './App.module.css'
 import { AccessDenied } from './components/AccessDenied'
-import { AppLayout } from './components/AppLayout'
+import { AppLayout } from './components/layout/AppLayout'
+import { EmptyState } from './components/PageState'
+import { ButtonLink } from './components/ui/ButtonLink'
+import { Surface } from './components/ui/Surface'
 import { useAuth } from './hooks/useAuth'
 import { useHashRoute } from './hooks/useHashRoute'
 import { DashboardPage } from './pages/DashboardPage'
@@ -17,8 +20,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="app-loading">
-        <span className="spinner" aria-hidden="true" />
+      <div className={styles.loading} role="status" aria-label="Memuat sesi">
+        <span className={styles.spinner} aria-hidden="true" />
         <p>Memuat sesi...</p>
       </div>
     )
@@ -35,16 +38,36 @@ function App() {
       page = <DashboardPage />
       break
     case 'tasks':
-      page = user.role === 'admin' ? <AccessDenied message="Admin tidak mengelola isi tugas." /> : <TasksPage />
+      page =
+        user.role === 'admin' ? (
+          <AccessDenied message="Admin tidak mengelola isi tugas." />
+        ) : (
+          <TasksPage />
+        )
       break
     case 'task':
-      page = user.role === 'admin' ? <AccessDenied message="Admin tidak mengelola isi tugas." /> : <TaskDetailPage id={route.id} />
+      page =
+        user.role === 'admin' ? (
+          <AccessDenied message="Admin tidak mengelola isi tugas." />
+        ) : (
+          <TaskDetailPage id={route.id} />
+        )
       break
     case 'users':
-      page = user.role === 'admin' ? <UsersPage /> : <AccessDenied message="Hanya admin yang dapat mengelola pengguna." />
+      page =
+        user.role === 'admin' ? (
+          <UsersPage />
+        ) : (
+          <AccessDenied message="Hanya admin yang dapat mengelola pengguna." />
+        )
       break
     case 'divisions':
-      page = user.role === 'admin' ? <DivisionsPage /> : <AccessDenied message="Hanya admin yang dapat mengelola divisi." />
+      page =
+        user.role === 'admin' ? (
+          <DivisionsPage />
+        ) : (
+          <AccessDenied message="Hanya admin yang dapat mengelola divisi." />
+        )
       break
     default:
       page = <NotFound />
@@ -59,13 +82,18 @@ function App() {
 
 function NotFound() {
   return (
-    <div className="page-state">
-      <strong>Halaman tidak ditemukan</strong>
-      <p>Alamat yang Anda buka tidak tersedia.</p>
-      <a className="button button-ghost" href="#/">
-        Kembali ke dashboard
-      </a>
-    </div>
+    <Surface padding="none">
+      <EmptyState
+        titleAs="h1"
+        title="Halaman tidak ditemukan"
+        description="Alamat yang Anda buka tidak tersedia."
+        action={
+          <ButtonLink href="#/" variant="secondary" size="sm">
+            Kembali ke dashboard
+          </ButtonLink>
+        }
+      />
+    </Surface>
   )
 }
 

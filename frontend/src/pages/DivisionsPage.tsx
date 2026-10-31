@@ -2,34 +2,101 @@ import { useState } from 'react'
 import { getErrorMessage } from '../api/client'
 import { deleteDivision, listDivisions } from '../api/divisions'
 import { ActiveBadge } from '../components/Badges'
+import {
+  CellMeta,
+  CellStack,
+  CellTitle,
+  DataTable,
+  RowActions,
+  type DataColumn,
+} from '../components/DataTable'
 import { DivisionFormModal } from '../components/DivisionFormModal'
 import { PageHeader } from '../components/PageHeader'
 import { EmptyState, ErrorState, LoadingState } from '../components/PageState'
+import { Button } from '../components/ui/Button'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { Notice } from '../components/ui/Notice'
+import { Surface } from '../components/ui/Surface'
 import { useAsync } from '../hooks/useAsync'
 import type { Division } from '../types/api'
+import styles from './DivisionsPage.module.css'
 
 type DivisionModalState = { mode: 'create' } | { mode: 'edit'; division: Division } | null
 
 export function DivisionsPage() {
   const [modal, setModal] = useState<DivisionModalState>(null)
+  const [pendingDelete, setPendingDelete] = useState<Division | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
   const divisions = useAsync(() => listDivisions(), [])
 
-  const handleDelete = async (division: Division) => {
-    if (!window.confirm(`Hapus divisi ${division.name}?`)) {
+  const handleDelete = async () => {
+    if (!pendingDelete) {
       return
     }
 
+    setDeleting(true)
     setActionError(null)
 
     try {
-      await deleteDivision(division.id)
+      await deleteDivision(pendingDelete.id)
+      setPendingDelete(null)
       divisions.reload()
     } catch (error) {
       setActionError(getErrorMessage(error))
+      setPendingDelete(null)
+    } finally {
+      setDeleting(false)
     }
   }
+
+  const columns: Array<DataColumn<Division>> = [
+    {
+      key: 'division',
+      header: 'Divisi',
+      render: (division) => (
+        <CellStack>
+          <CellTitle>{division.name}</CellTitle>
+          <CellMeta>{division.code}</CellMeta>
+        </CellStack>
+      ),
+    },
+    {
+      key: 'description',
+      header: 'Deskripsi',
+      render: (division) => division.description ?? '—',
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (division) => <ActiveBadge active={division.is_active} />,
+    },
+    {
+      key: 'actions',
+      header: 'Aksi',
+      align: 'right',
+      render: (division) => (
+        <RowActions>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setModal({ mode: 'edit', division })}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={styles.dangerAction}
+            onClick={() => setPendingDelete(division)}
+          >
+            Hapus
+          </Button>
+        </RowActions>
+      ),
+    },
+  ]
 
   return (
     <>
@@ -37,18 +104,14 @@ export function DivisionsPage() {
         title="Divisi"
         description="Data master divisi yang dipakai pada akun dan tugas."
         actions={
-          <button
-            type="button"
-            className="button button-primary"
-            onClick={() => setModal({ mode: 'create' })}
-          >
-            Divisi Baru
-          </button>
+          <Button onClick={() => setModal({ mode: 'create' })}>Divisi Baru</Button>
         }
       />
 
-      <section className="panel">
-        {actionError ? <div className="alert alert-error">{actionError}</div> : null}
+      <Surface padding="none">
+        {actionError ? (
+          <Notice className={styles.notice}>{actionError}</Notice>
+        ) : null}
 
         {divisions.loading ? (
           <LoadingState label="Memuat divisi..." />
@@ -60,50 +123,14 @@ export function DivisionsPage() {
             description="Tambahkan divisi pertama untuk mulai mengelompokkan tim."
           />
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Divisi</th>
-                  <th>Deskripsi</th>
-                  <th>Status</th>
-                  <th className="cell-actions">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {divisions.data?.data.map((division) => (
-                  <tr key={division.id}>
-                    <td>
-                      <span className="table-title">{division.name}</span>
-                      <span className="table-subtitle">{division.code}</span>
-                    </td>
-                    <td>{division.description ?? '—'}</td>
-                    <td>
-                      <ActiveBadge active={division.is_active} />
-                    </td>
-                    <td className="cell-actions">
-                      <button
-                        type="button"
-                        className="button button-ghost button-small"
-                        onClick={() => setModal({ mode: 'edit', division })}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="button button-danger-outline button-small"
-                        onClick={() => handleDelete(division)}
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            label="Daftar divisi"
+            rows={divisions.data?.data ?? []}
+            columns={columns}
+            getRowKey={(division) => division.id}
+          />
         )}
-      </section>
+      </Surface>
 
       {modal ? (
         <DivisionFormModal
@@ -113,6 +140,17 @@ export function DivisionsPage() {
             setModal(null)
             divisions.reload()
           }}
+        />
+      ) : null}
+
+      {pendingDelete ? (
+        <ConfirmDialog
+          title="Hapus divisi?"
+          message={`Divisi ${pendingDelete.name} akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`}
+          confirmLabel="Hapus divisi"
+          busy={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setPendingDelete(null)}
         />
       ) : null}
     </>

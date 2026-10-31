@@ -1,11 +1,24 @@
-export function AccessDenied({ message = 'Halaman ini tidak tersedia untuk peran Anda.' }: { message?: string }) {
+import { EmptyState } from './PageState'
+import { ButtonLink } from './ui/ButtonLink'
+import { Surface } from './ui/Surface'
+
+export function AccessDenied({
+  message = 'Halaman ini tidak tersedia untuk peran Anda.',
+}: {
+  message?: string
+}) {
   return (
-    <div className="page-state page-state-error">
-      <strong>Akses ditolak</strong>
-      <p>{message}</p>
-      <a className="button button-ghost" href="#/">
-        Kembali ke dashboard
-      </a>
-    </div>
+    <Surface padding="none">
+      <EmptyState
+        titleAs="h1"
+        title="Akses ditolak"
+        description={message}
+        action={
+          <ButtonLink href="#/" variant="secondary" size="sm">
+            Kembali ke dashboard
+          </ButtonLink>
+        }
+      />
+    </Surface>
   )
 }

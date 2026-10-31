@@ -5,6 +5,10 @@ import { TASK_PRIORITY_LABELS } from '../lib/tasks'
 import type { CreateTaskInput, Division, Task, TaskPriority, User } from '../types/api'
 import { FormField } from './FormField'
 import { Modal } from './Modal'
+import styles from './TaskFormModal.module.css'
+import { Button } from './ui/Button'
+import { FormFieldset, FormRow, FormStack } from './ui/FormLayout'
+import { Notice } from './ui/Notice'
 
 interface TaskFormModalProps {
   task?: Task
@@ -88,20 +92,20 @@ export function TaskFormModal({ task, divisions, users, onClose, onSaved }: Task
     <Modal
       title={task ? 'Edit Tugas' : 'Tugas Baru'}
       subtitle={task ? 'Perbarui detail tugas.' : 'Buat tugas baru untuk tim.'}
-      onClose={onClose}
+      onClose={saving ? () => undefined : onClose}
       footer={
         <>
-          <button type="button" className="button button-ghost" onClick={onClose} disabled={saving}>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>
             Batal
-          </button>
-          <button type="submit" form="task-form" className="button button-primary" disabled={saving}>
-            {saving ? 'Menyimpan...' : 'Simpan Tugas'}
-          </button>
+          </Button>
+          <Button type="submit" form="task-form" loading={saving}>
+            Simpan Tugas
+          </Button>
         </>
       }
     >
-      <form id="task-form" className="form-grid" onSubmit={handleSubmit}>
-        {error ? <div className="alert alert-error">{error}</div> : null}
+      <FormStack id="task-form" onSubmit={handleSubmit}>
+        {error ? <Notice>{error}</Notice> : null}
 
         <FormField label="Judul" htmlFor="task-title" error={fieldErrors.title?.[0]}>
           <input
@@ -124,7 +128,7 @@ export function TaskFormModal({ task, divisions, users, onClose, onSaved }: Task
           />
         </FormField>
 
-        <div className="form-row">
+        <FormRow>
           <FormField label="Divisi" htmlFor="task-division" error={fieldErrors.division_id?.[0]}>
             <select
               id="task-division"
@@ -155,9 +159,9 @@ export function TaskFormModal({ task, divisions, users, onClose, onSaved }: Task
               ))}
             </select>
           </FormField>
-        </div>
+        </FormRow>
 
-        <div className="form-row">
+        <FormRow>
           <FormField
             label="PIC"
             htmlFor="task-pic"
@@ -182,35 +186,36 @@ export function TaskFormModal({ task, divisions, users, onClose, onSaved }: Task
               onChange={(event) => setDueDate(event.target.value)}
             />
           </FormField>
-        </div>
+        </FormRow>
 
-        <FormField
-          label="Anggota pendukung"
-          htmlFor="task-members"
+        <FormFieldset
+          legend="Anggota pendukung"
           hint="Pilih anggota yang ikut mengerjakan tugas ini."
           error={fieldErrors.member_ids?.[0]}
         >
-          <div id="task-members" className="member-picker">
-            {activeUsers.length === 0 ? (
-              <p className="form-hint">Belum ada pengguna aktif.</p>
-            ) : (
-              activeUsers.map((user) => (
-                <label key={user.id} className="member-option">
+          {activeUsers.length === 0 ? (
+            <p className={styles.empty}>Belum ada pengguna aktif.</p>
+          ) : (
+            <div className={styles.memberList}>
+              {activeUsers.map((user) => (
+                <label key={user.id} className={styles.memberOption}>
                   <input
                     type="checkbox"
                     checked={memberIds.includes(user.id)}
                     onChange={() => toggleMember(user.id)}
                   />
-                  <span>
+                  <span className={styles.memberText}>
                     {user.name}
-                    <small>{user.division?.name ?? 'Tanpa divisi'}</small>
+                    <span className={styles.memberHint}>
+                      {user.division?.name ?? 'Tanpa divisi'}
+                    </span>
                   </span>
                 </label>
-              ))
-            )}
-          </div>
-        </FormField>
-      </form>
+              ))}
+            </div>
+          )}
+        </FormFieldset>
+      </FormStack>
     </Modal>
   )
 }

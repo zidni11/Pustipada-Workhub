@@ -1,0 +1,282 @@
+.back.back {
+  min-height: 32px;
+  margin: 0 0 var(--space-3) calc(-1 * var(--space-3));
+  padding: 0 var(--space-3);
+  color: var(--text-muted);
+}
+
+.back.back:hover {
+  background: transparent;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.notice {
+  margin-bottom: var(--space-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  align-items: start;
+  gap: var(--space-4);
+}
+
+.main,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.description {
+  color: var(--text);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  white-space: pre-line;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: var(--text-base);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timelineItem {
+  position: relative;
+  padding: 0 0 var(--space-4) var(--space-4);
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineItem::before {
+  position: absolute;
+  top: 14px;
+  bottom: 0;
+  left: 3px;
+  width: 1px;
+  background: var(--border);
+  content: '';
+}
+
+.timelineItem:last-child::before {
+  display: none;
+}
+
+.marker {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--primary);
+}
+
+.timelineBody {
+  min-width: 0;
+}
+
+.activityTitle {
+  color: var(--text);
+  font-size: var(--text-base);
+  line-height: var(--leading-snug);
+}
+
+.activityTitle strong {
+  font-weight: var(--weight-semibold);
+}
+
+.statusChange {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.arrow {
+  display: inline-flex;
+  color: var(--text-soft);
+}
+
+.note {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.time {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.infoRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.infoRow:first-child {
+  padding-top: 0;
+}
+
+.infoRow:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.infoRow dt {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.infoRow dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  text-align: right;
+}
+
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+
+.memberRow:first-child {
+  padding-top: 0;
+}
+
+.memberRow:last-child {
+  padding-bottom: 0;
+}
+
+.memberRow + .memberRow {
+  border-top: 1px solid var(--border);
+}
+
+.memberText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.memberText strong {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+}
+
+.memberText span {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.transitions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main {
+    display: contents;
+  }
+
+  .main > :first-child {
+    order: 1;
+  }
+
+  .side {
+    order: 2;
+  }
+
+  .main > :last-child {
+    order: 3;
+  }
+}
+
+@media (max-width: 600px) {
+  .transitions button {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .infoRow {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .infoRow dd {
+    text-align: left;
+  }
+}

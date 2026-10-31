@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import styles from './PageHeader.module.css'
 
 interface PageHeaderProps {
   title: string
@@ -8,12 +9,12 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div className="page-header">
+    <header className={styles.header}>
       <div>
-        <h1>{title}</h1>
-        {description ? <p>{description}</p> : null}
+        <h1 className={styles.title}>{title}</h1>
+        {description ? <p className={styles.description}>{description}</p> : null}
       </div>
-      {actions ? <div className="page-header-actions">{actions}</div> : null}
-    </div>
+      {actions ? <div className={styles.actions}>{actions}</div> : null}
+    </header>
   )
 }

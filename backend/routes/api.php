@@ -20,6 +20,11 @@ Route::get('/health', function () {
     ]);
 });
 
+Route::get('/divisions/public', [DivisionController::class, 'publicIndex']);
+
+Route::post('/auth/register', [AuthController::class, 'register'])
+    ->middleware('throttle:10,1');
+
 Route::post('/auth/login', [AuthController::class, 'login'])
     ->middleware('throttle:10,1');
 

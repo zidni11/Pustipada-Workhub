@@ -1,0 +1,25 @@
+.notice {
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid;
+  border-radius: var(--r-sm);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.danger {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger-strong);
+}
+
+.info {
+  border-color: var(--info);
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.success {
+  border-color: var(--success);
+  background: var(--success-soft);
+  color: var(--success);
+}
