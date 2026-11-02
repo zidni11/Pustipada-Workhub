@@ -3,3 +3,4 @@ backend/.env
 opencode.json
 node_modules/
 vendor/
+*:Zone.Identifier
