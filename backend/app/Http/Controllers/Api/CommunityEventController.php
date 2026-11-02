@@ -40,6 +40,13 @@ class CommunityEventController extends Controller
         return CommunityEventResource::collection($query->get());
     }
 
+    public function categories(): JsonResponse
+    {
+        return response()->json([
+            'data' => CommunityEvent::categoryOptions(),
+        ]);
+    }
+
     public function store(StoreCommunityEventRequest $request): JsonResponse
     {
         $event = DB::transaction(function () use ($request) {

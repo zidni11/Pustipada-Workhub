@@ -6,6 +6,7 @@ import {
   WEEKDAY_LABELS,
 } from '../../lib/calendar'
 import { cn } from '../../lib/cn'
+import { eventCategoryColors } from '../../lib/eventCategory'
 import styles from './CalendarGrid.module.css'
 
 interface CalendarGridProps {
@@ -14,13 +15,6 @@ interface CalendarGridProps {
   events: CommunityEvent[]
   selectedDay: string
   onSelectDay: (day: string) => void
-}
-
-const CATEGORY_CLASSES: Record<CommunityEvent['category'], string> = {
-  meeting: styles.categoryMeeting,
-  lunch: styles.categoryLunch,
-  celebration: styles.categoryCelebration,
-  other: styles.categoryOther,
 }
 
 export function CalendarGrid({
@@ -76,14 +70,23 @@ export function CalendarGrid({
                 </span>
 
                 <span className={styles.entries}>
-                  {visibleEvents.map((event) => (
-                    <span
-                      key={`${event.id}-${day.key}`}
-                      className={cn(styles.event, CATEGORY_CLASSES[event.category])}
-                    >
-                      {event.title}
-                    </span>
-                  ))}
+                  {visibleEvents.map((event) => {
+                    const colors = eventCategoryColors(event.category_label)
+
+                    return (
+                      <span
+                        key={`${event.id}-${day.key}`}
+                        className={styles.event}
+                        style={{
+                          background: colors.background,
+                          color: colors.color,
+                        }}
+                        title={event.title}
+                      >
+                        {event.title}
+                      </span>
+                    )
+                  })}
                   {hiddenEvents > 0 ? (
                     <span className={styles.more}>+{hiddenEvents} acara</span>
                   ) : null}

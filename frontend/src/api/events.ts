@@ -2,6 +2,7 @@ import type {
   Collection,
   CommunityEvent,
   CreateCommunityEventInput,
+  EventCategoryOption,
   Resource,
   UpdateCommunityEventInput,
 } from '../types/api'
@@ -9,6 +10,10 @@ import { apiFetch, toQueryString } from './client'
 
 export function listEvents(params: { month?: string } = {}): Promise<Collection<CommunityEvent>> {
   return apiFetch<Collection<CommunityEvent>>(`/events${toQueryString(params)}`)
+}
+
+export function listEventCategories(): Promise<Collection<EventCategoryOption>> {
+  return apiFetch<Collection<EventCategoryOption>>('/events/categories')
 }
 
 export function createEvent(

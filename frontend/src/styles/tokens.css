@@ -121,5 +121,23 @@
   --tone-danger-bg: #fee2e2;
   --tone-danger-fg: #991b1b;
 
+  /* Calendar category tones (stable hash palette) */
+  --event-cat-1-bg: #e0f2fe;
+  --event-cat-1-fg: #075985;
+  --event-cat-2-bg: #dcfce7;
+  --event-cat-2-fg: #166534;
+  --event-cat-3-bg: #fef3c7;
+  --event-cat-3-fg: #92400e;
+  --event-cat-4-bg: #ede9fe;
+  --event-cat-4-fg: #5b21b6;
+  --event-cat-5-bg: #ccfbf1;
+  --event-cat-5-fg: #115e59;
+  --event-cat-6-bg: #ffe4e6;
+  --event-cat-6-fg: #9f1239;
+  --event-cat-7-bg: #e0e7ff;
+  --event-cat-7-fg: #3730a3;
+  --event-cat-8-bg: #e2e8f0;
+  --event-cat-8-fg: #334155;
+
   color-scheme: light;
 }

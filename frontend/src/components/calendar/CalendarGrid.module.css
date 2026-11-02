@@ -108,31 +108,13 @@
   padding: 2px 5px;
   border-left: 2px solid currentColor;
   border-radius: 2px;
+  background: var(--surface-3);
+  color: var(--text-muted);
   font-size: 10px;
   font-weight: var(--weight-medium);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.categoryMeeting {
-  background: var(--info-soft);
-  color: var(--info);
-}
-
-.categoryLunch {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.categoryCelebration {
-  background: var(--warning-soft);
-  color: var(--warning);
-}
-
-.categoryOther {
-  background: var(--surface-3);
-  color: var(--text-muted);
 }
 
 .more {

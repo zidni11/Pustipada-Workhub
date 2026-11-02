@@ -69,16 +69,8 @@
   border-radius: 1px;
 }
 
-.dotMeeting {
-  background: var(--info);
-}
-
-.dotLunch {
-  background: var(--success);
-}
-
-.dotCelebration {
-  background: var(--warning);
+.dot {
+  display: inline-block;
 }
 
 .dotTask {

@@ -46,7 +46,12 @@ export interface ChecklistProgress {
   percentage: number
 }
 
-export type CommunityEventCategory = 'meeting' | 'lunch' | 'celebration' | 'other'
+export type CommunityEventCategory = string
+
+export interface EventCategoryOption {
+  value: string
+  label: string
+}
 
 export interface CommunityEvent {
   id: number

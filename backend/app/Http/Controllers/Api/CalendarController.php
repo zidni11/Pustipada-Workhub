@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\CommunityEventCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CalendarTaskResource;
 use App\Http\Resources\CommunityEventResource;
@@ -80,7 +81,7 @@ class CalendarController extends Controller
                 'id' => $event->id,
                 'title' => $event->title,
                 'date' => $event->start_at?->toIso8601String(),
-                'label' => $event->category->label(),
+                'label' => CommunityEventCategory::labelFor($event->category),
                 'target_url' => '#/calendar?month='.$event->start_at?->format('Y-m'),
             ]))
             ->sortBy('date')

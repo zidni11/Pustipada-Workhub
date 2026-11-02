@@ -92,22 +92,6 @@
   border-radius: 1px;
 }
 
-.dot-meeting {
-  background: var(--info);
-}
-
-.dot-lunch {
-  background: var(--success);
-}
-
-.dot-celebration {
-  background: var(--warning);
-}
-
-.dot-other {
-  background: var(--text-soft);
-}
-
 .itemBody {
   display: flex;
   flex: 1;

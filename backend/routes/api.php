@@ -44,6 +44,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/divisions', [DivisionController::class, 'index']);
 
     Route::get('/events', [CommunityEventController::class, 'index']);
+    Route::get('/events/categories', [CommunityEventController::class, 'categories']);
     Route::get('/calendar', CalendarController::class);
 
     Route::get('/notifications', [NotificationController::class, 'index']);

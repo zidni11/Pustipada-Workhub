@@ -29,10 +29,32 @@ class CommunityEvent extends Model
     protected function casts(): array
     {
         return [
-            'category' => CommunityEventCategory::class,
             'start_at' => 'datetime',
             'end_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return array<int, array{value: string, label: string}>
+     */
+    public static function categoryOptions(): array
+    {
+        $used = static::query()
+            ->select('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category')
+            ->filter(fn ($value) => is_string($value) && $value !== '');
+
+        return collect(CommunityEventCategory::values())
+            ->merge($used)
+            ->unique()
+            ->values()
+            ->map(fn (string $value) => [
+                'value' => $value,
+                'label' => CommunityEventCategory::labelFor($value),
+            ])
+            ->all();
     }
 
     public function division(): BelongsTo

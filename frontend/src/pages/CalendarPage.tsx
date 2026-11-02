@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { getCalendar } from '../api/calendar'
 import { getErrorMessage } from '../api/client'
 import { listDivisions } from '../api/divisions'
-import { deleteEvent } from '../api/events'
+import { deleteEvent, listEventCategories } from '../api/events'
 import { PageHeader } from '../components/PageHeader'
 import { ErrorState, LoadingState } from '../components/PageState'
 import { CalendarAgenda } from '../components/calendar/CalendarAgenda'
@@ -22,6 +22,10 @@ import {
   dateKey,
   shiftMonth,
 } from '../lib/calendar'
+import {
+  DEFAULT_EVENT_CATEGORIES,
+  eventCategoryColors,
+} from '../lib/eventCategory'
 import { formatMonth } from '../lib/format'
 import type { CommunityEvent } from '../types/api'
 import styles from './CalendarPage.module.css'
@@ -53,6 +57,10 @@ export function CalendarPage({ month: routeMonth, create }: CalendarPageProps) {
   const calendar = useAsync(() => getCalendar(month), [month])
   const divisions = useAsync(
     () => (canManage ? listDivisions() : Promise.resolve({ data: [] })),
+    [canManage],
+  )
+  const eventCategories = useAsync(
+    () => (canManage ? listEventCategories() : Promise.resolve({ data: [] })),
     [canManage],
   )
 
@@ -98,6 +106,16 @@ export function CalendarPage({ month: routeMonth, create }: CalendarPageProps) {
   }
 
   const data = calendar.data
+  const legendCategories = data
+    ? Array.from(
+        new Map(
+          data.events.map((event) => [
+            event.category_label.toLowerCase(),
+            event.category_label,
+          ]),
+        ).values(),
+      )
+    : []
 
   return (
     <>
@@ -159,20 +177,21 @@ export function CalendarPage({ month: routeMonth, create }: CalendarPageProps) {
             Hari ini
           </button>
           <div className={styles.legend} aria-label="Legenda kategori acara">
+            {legendCategories.map((category) => (
+              <span key={category}>
+                <i
+                  className={styles.dot}
+                  style={{ background: eventCategoryColors(category).color }}
+                  aria-hidden="true"
+                />
+                {category}
+              </span>
+            ))}
             <span>
-              <i className={styles.dotMeeting} aria-hidden="true" />
-              Meeting
-            </span>
-            <span>
-              <i className={styles.dotLunch} aria-hidden="true" />
-              Lunch
-            </span>
-            <span>
-              <i className={styles.dotCelebration} aria-hidden="true" />
-              Acara
-            </span>
-            <span>
-              <i className={styles.dotTask} aria-hidden="true" />
+              <i
+                className={`${styles.dot} ${styles.dotTask}`}
+                aria-hidden="true"
+              />
               Tenggat
             </span>
           </div>
@@ -215,6 +234,7 @@ export function CalendarPage({ month: routeMonth, create }: CalendarPageProps) {
         <EventFormModal
           event={editing.event ?? undefined}
           divisions={divisions.data?.data ?? []}
+          categories={eventCategories.data?.data ?? DEFAULT_EVENT_CATEGORIES}
           defaultDivisionId={user.division_id}
           onClose={closeForm}
           onSaved={handleSaved}

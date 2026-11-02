@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\CommunityEventCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,8 +17,8 @@ class CommunityEventResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-            'category' => $this->category->value,
-            'category_label' => $this->category->label(),
+            'category' => $this->category,
+            'category_label' => CommunityEventCategory::labelFor($this->category),
             'location' => $this->location,
             'start_at' => $this->start_at?->toIso8601String(),
             'end_at' => $this->end_at?->toIso8601String(),

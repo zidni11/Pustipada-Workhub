@@ -7,6 +7,7 @@ import {
   eventsForDay,
   tasksForDay,
 } from '../../lib/calendar'
+import { eventCategoryColors } from '../../lib/eventCategory'
 import {
   formatDate,
   formatTime,
@@ -71,7 +72,11 @@ export function CalendarAgenda({
                   {dayEvents.map((event) => (
                     <li key={event.id} className={styles.eventItem}>
                       <span
-                        className={`${styles.categoryDot} ${styles[`dot-${event.category}`]}`}
+                        className={styles.categoryDot}
+                        style={{
+                          background: eventCategoryColors(event.category_label)
+                            .color,
+                        }}
                         aria-hidden="true"
                       />
                       <div className={styles.itemBody}>

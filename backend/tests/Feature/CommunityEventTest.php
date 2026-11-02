@@ -47,6 +47,80 @@ class CommunityEventTest extends TestCase
         $this->assertDatabaseMissing('community_events', ['id' => $eventId]);
     }
 
+    public function test_admin_and_pimpinan_can_use_custom_categories(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $pimpinan = User::factory()->pimpinan()->create();
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->postJson('/api/events', [
+            'title' => 'Workshop desain',
+            'category' => 'Workshop Internal',
+            'start_at' => now()->addDay()->toDateTimeString(),
+        ])->assertCreated()
+            ->assertJsonPath('data.category', 'Workshop Internal')
+            ->assertJsonPath('data.category_label', 'Workshop Internal');
+
+        $eventId = $response->json('data.id');
+
+        Sanctum::actingAs($pimpinan);
+
+        $this->patchJson("/api/events/{$eventId}", [
+            'category' => 'Rapat Koordinasi',
+        ])->assertOk()
+            ->assertJsonPath('data.category', 'Rapat Koordinasi')
+            ->assertJsonPath('data.category_label', 'Rapat Koordinasi');
+    }
+
+    public function test_event_categories_include_defaults_and_used_custom_categories(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        CommunityEvent::factory()->create([
+            'category' => 'Workshop Internal',
+            'created_by' => $admin->id,
+        ]);
+        CommunityEvent::factory()->create([
+            'category' => 'Workshop Internal',
+            'created_by' => $admin->id,
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/events/categories')->assertOk();
+        $options = collect($response->json('data'));
+        $values = $options->pluck('value');
+
+        $this->assertTrue($values->contains('meeting'));
+        $this->assertTrue($values->contains('pengumuman'));
+        $this->assertTrue($values->contains('kegiatan_kantor'));
+        $this->assertTrue($values->contains('Workshop Internal'));
+        $this->assertSame(1, $values->filter(fn ($value) => $value === 'Workshop Internal')->count());
+        $this->assertSame('Pengumuman', $options->firstWhere('value', 'pengumuman')['label']);
+    }
+
+    public function test_event_category_must_be_a_string_within_the_length_limit(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Sanctum::actingAs($admin);
+
+        $this->postJson('/api/events', [
+            'title' => 'Acara',
+            'category' => str_repeat('a', 61),
+            'start_at' => now()->addDay()->toDateTimeString(),
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('category');
+
+        $this->postJson('/api/events', [
+            'title' => 'Acara',
+            'category' => '',
+            'start_at' => now()->addDay()->toDateTimeString(),
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('category');
+    }
+
     public function test_anggota_cannot_manage_events(): void
     {
         $anggota = User::factory()->anggota()->create();

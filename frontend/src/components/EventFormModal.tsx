@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { ApiError, getErrorMessage } from '../api/client'
 import { createEvent, updateEvent } from '../api/events'
+import { DEFAULT_EVENT_CATEGORIES } from '../lib/eventCategory'
 import type {
   CommunityEvent,
   CommunityEventCategory,
   CreateCommunityEventInput,
   Division,
+  EventCategoryOption,
 } from '../types/api'
 import { FormField } from './FormField'
 import { Modal } from './Modal'
@@ -13,19 +15,12 @@ import { Button } from './ui/Button'
 import { FormRow, FormStack } from './ui/FormLayout'
 import { Notice } from './ui/Notice'
 
-const CATEGORIES: Array<{
-  value: CommunityEventCategory
-  label: string
-}> = [
-  { value: 'meeting', label: 'Meeting' },
-  { value: 'lunch', label: 'Lunch Bareng' },
-  { value: 'celebration', label: 'Acara 17-an' },
-  { value: 'other', label: 'Lainnya' },
-]
+const CUSTOM_CATEGORY_VALUE = '__custom__'
 
 interface EventFormModalProps {
   event?: CommunityEvent
   divisions: Division[]
+  categories?: EventCategoryOption[]
   defaultDivisionId?: number | null
   onClose: () => void
   onSaved: (event: CommunityEvent) => void
@@ -34,18 +29,25 @@ interface EventFormModalProps {
 export function EventFormModal({
   event,
   divisions,
+  categories = DEFAULT_EVENT_CATEGORIES,
   defaultDivisionId,
   onClose,
   onSaved,
 }: EventFormModalProps) {
   const start = splitDateTime(event?.start_at)
   const end = splitDateTime(event?.end_at)
+  const initialCategory = event?.category ?? 'meeting'
+  const initialCustomMode =
+    event?.category !== undefined
+    && !categories.some((option) => option.value === event.category)
 
   const [title, setTitle] = useState(event?.title ?? '')
   const [description, setDescription] = useState(event?.description ?? '')
-  const [category, setCategory] = useState<CommunityEventCategory>(
-    event?.category ?? 'meeting',
+  const [category, setCategory] = useState<CommunityEventCategory>(initialCategory)
+  const [customCategory, setCustomCategory] = useState(
+    initialCustomMode ? initialCategory : '',
   )
+  const [customMode, setCustomMode] = useState(initialCustomMode)
   const [location, setLocation] = useState(event?.location ?? '')
   const [divisionId, setDivisionId] = useState(
     event
@@ -64,6 +66,20 @@ export function EventFormModal({
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
+  const categoryOptions = [...categories]
+
+  if (
+    event
+    && !categoryOptions.some((option) => option.value === event.category)
+  ) {
+    categoryOptions.push({
+      value: event.category,
+      label: event.category_label,
+    })
+  }
+
+  const resolvedCategory = customMode ? customCategory.trim() : category
+
   const handleSubmit = async (submitEvent: FormEvent<HTMLFormElement>) => {
     submitEvent.preventDefault()
 
@@ -71,6 +87,12 @@ export function EventFormModal({
 
     if (!title.trim()) {
       nextErrors.title = ['Judul acara wajib diisi.']
+    }
+
+    if (!resolvedCategory) {
+      nextErrors.category = ['Kategori wajib dipilih atau diisi.']
+    } else if (resolvedCategory.length > 60) {
+      nextErrors.category = ['Nama kategori maksimal 60 karakter.']
     }
 
     if (!startDate || !startTime) {
@@ -96,7 +118,7 @@ export function EventFormModal({
     const payload: CreateCommunityEventInput = {
       title: title.trim(),
       description: description.trim() ? description.trim() : null,
-      category,
+      category: resolvedCategory,
       location: location.trim() ? location.trim() : null,
       start_at: startAt.toISOString(),
       end_at: endAt ? endAt.toISOString() : null,
@@ -162,20 +184,32 @@ export function EventFormModal({
           <FormField
             label="Kategori"
             htmlFor="event-category"
-            error={fieldErrors.category?.[0]}
+            hint="Pilih kategori yang sudah ada atau buat kategori baru."
+            error={customMode ? undefined : fieldErrors.category?.[0]}
           >
             <select
               id="event-category"
-              value={category}
-              onChange={(changeEvent) =>
-                setCategory(changeEvent.target.value as CommunityEventCategory)
-              }
+              value={customMode ? CUSTOM_CATEGORY_VALUE : category}
+              onChange={(changeEvent) => {
+                const value = changeEvent.target.value
+
+                if (value === CUSTOM_CATEGORY_VALUE) {
+                  setCustomMode(true)
+                  return
+                }
+
+                setCustomMode(false)
+                setCategory(value)
+              }}
             >
-              {CATEGORIES.map((item) => (
+              {categoryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
                   {item.label}
                 </option>
               ))}
+              <option value={CUSTOM_CATEGORY_VALUE}>
+                + Buat Kategori Baru (Kustom)
+              </option>
             </select>
           </FormField>
 
@@ -199,6 +233,25 @@ export function EventFormModal({
             </select>
           </FormField>
         </FormRow>
+
+        {customMode ? (
+          <FormField
+            label="Nama kategori baru"
+            htmlFor="event-category-custom"
+            hint="Maksimal 60 karakter."
+            error={fieldErrors.category?.[0]}
+          >
+            <input
+              id="event-category-custom"
+              value={customCategory}
+              onChange={(changeEvent) => setCustomCategory(changeEvent.target.value)}
+              placeholder="Ketik nama kategori baru, misal: Workshop / Rapat Koordinasi..."
+              maxLength={60}
+              autoFocus
+              required
+            />
+          </FormField>
+        ) : null}
 
         <FormRow>
           <FormField
