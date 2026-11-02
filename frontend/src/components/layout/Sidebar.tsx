@@ -5,7 +5,16 @@ import { cn } from '../../lib/cn'
 import type { User } from '../../types/api'
 import { Avatar } from '../Avatar'
 import { RoleBadge } from '../Badges'
-import { BuildingIcon, CloseIcon, DashboardIcon, LogoutIcon, TasksIcon, UsersIcon } from './icons'
+import {
+  BuildingIcon,
+  CalendarIcon,
+  CloseIcon,
+  DashboardIcon,
+  HistoryIcon,
+  LogoutIcon,
+  TasksIcon,
+  UsersIcon,
+} from './icons'
 import styles from './Sidebar.module.css'
 
 interface NavItem {
@@ -35,6 +44,13 @@ function navItemsFor(user: User): NavItem[] {
     },
   ]
 
+  items.push({
+    label: 'Kalender',
+    path: routePaths.calendar,
+    icon: <CalendarIcon />,
+    isActive: (route) => route.name === 'calendar',
+  })
+
   if (user.role === 'admin') {
     items.push(
       {
@@ -51,12 +67,20 @@ function navItemsFor(user: User): NavItem[] {
       },
     )
   } else {
-    items.push({
-      label: 'Tugas',
-      path: routePaths.tasks,
-      icon: <TasksIcon />,
-      isActive: (route) => route.name === 'tasks' || route.name === 'task',
-    })
+    items.push(
+      {
+        label: 'Tugas',
+        path: routePaths.tasks,
+        icon: <TasksIcon />,
+        isActive: (route) => route.name === 'tasks' || route.name === 'task',
+      },
+      {
+        label: 'Riwayat Tugas',
+        path: routePaths.taskHistory,
+        icon: <HistoryIcon />,
+        isActive: (route) => route.name === 'taskHistory',
+      },
+    )
   }
 
   return items

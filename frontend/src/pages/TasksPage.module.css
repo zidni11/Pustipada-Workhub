@@ -1,0 +1,52 @@
+.notice {
+  margin-bottom: var(--space-4);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.filters select {
+  width: auto;
+  min-width: 136px;
+}
+
+.dateField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+.dateField input {
+  width: auto;
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+@media (max-width: 700px) {
+  .filters {
+    width: 100%;
+  }
+
+  .filters select {
+    flex: 1 1 140px;
+  }
+
+  .dateField {
+    flex: 1 1 160px;
+  }
+
+  .dateField input {
+    flex: 1;
+    width: 100%;
+  }
+}

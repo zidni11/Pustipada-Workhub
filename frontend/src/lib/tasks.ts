@@ -20,6 +20,16 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   cancelled: 'Cancelled',
 }
 
+export const ACTIVE_TASK_STATUSES: TaskStatus[] = [
+  'draft',
+  'open',
+  'in_progress',
+  'in_review',
+  'revision_needed',
+]
+
+export const HISTORY_TASK_STATUSES: TaskStatus[] = ['completed', 'cancelled']
+
 export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
   low: 'Rendah',
   medium: 'Sedang',
@@ -60,8 +70,26 @@ export function allowedTransitionsFor(task: Task, user: User): TaskStatus[] {
   }
 
   return transitions.filter(
-    (status) => status === 'in_progress' || status === 'in_review',
+    (status) =>
+      status === 'in_progress'
+      || (status === 'in_review' && task.pic?.id === user.id),
   )
+}
+
+export function canManageChecklists(task: Task, user: User): boolean {
+  return user.role === 'pimpinan' || isAssignedTo(task, user)
+}
+
+export function canDeleteChecklist(task: Task, user: User): boolean {
+  return user.role === 'pimpinan' || task.pic?.id === user.id
+}
+
+export function canSubmitProof(task: Task, user: User): boolean {
+  return user.role === 'anggota' && isAssignedTo(task, user)
+}
+
+export function canDeleteSubmission(task: Task, user: User): boolean {
+  return task.pic?.id === user.id
 }
 
 export function transitionLabel(from: TaskStatus, to: TaskStatus): string {

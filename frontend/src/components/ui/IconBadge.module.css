@@ -1,0 +1,54 @@
+.icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--tone-neutral-bg);
+  color: var(--tone-neutral-fg);
+}
+
+.icon svg {
+  width: 55%;
+  height: 55%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.sm {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+}
+
+.md {
+  width: 38px;
+  height: 38px;
+}
+
+.neutral {
+  background: var(--tone-neutral-bg);
+  color: var(--tone-neutral-fg);
+}
+
+.info {
+  background: var(--tone-info-bg);
+  color: var(--tone-info-fg);
+}
+
+.warning {
+  background: var(--tone-warning-bg);
+  color: var(--tone-warning-fg);
+}
+
+.success {
+  background: var(--tone-success-bg);
+  color: var(--tone-success-fg);
+}
+
+.danger {
+  background: var(--tone-danger-bg);
+  color: var(--tone-danger-fg);
+}

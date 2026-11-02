@@ -69,4 +69,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(TaskActivity::class);
     }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(TaskSubmission::class);
+    }
+
+    public function completedChecklists(): HasMany
+    {
+        return $this->hasMany(TaskChecklist::class, 'completed_by');
+    }
+
+    public function createdEvents(): HasMany
+    {
+        return $this->hasMany(CommunityEvent::class, 'created_by');
+    }
+
+    public function userNotifications(): HasMany
+    {
+        return $this->hasMany(UserNotification::class)->latest();
+    }
 }

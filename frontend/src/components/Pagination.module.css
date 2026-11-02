@@ -16,6 +16,7 @@
 .number {
   color: var(--text);
   font-family: var(--font-mono);
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
 }
 

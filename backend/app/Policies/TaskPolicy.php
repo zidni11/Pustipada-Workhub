@@ -57,6 +57,25 @@ class TaskPolicy
             return false;
         }
 
-        return in_array($status, [TaskStatus::IN_PROGRESS, TaskStatus::IN_REVIEW], true);
+        if ($status === TaskStatus::IN_REVIEW) {
+            return $task->pic_id === $user->id;
+        }
+
+        return $status === TaskStatus::IN_PROGRESS;
+    }
+
+    public function submitProof(User $user, Task $task): bool
+    {
+        return $user->role === UserRole::ANGGOTA && $task->isAssignedTo($user);
+    }
+
+    public function manageChecklist(User $user, Task $task): bool
+    {
+        return $user->role === UserRole::PIMPINAN || $task->isAssignedTo($user);
+    }
+
+    public function deleteChecklist(User $user, Task $task): bool
+    {
+        return $user->role === UserRole::PIMPINAN || $task->pic_id === $user->id;
     }
 }

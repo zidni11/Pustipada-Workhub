@@ -18,6 +18,28 @@ enum TaskStatus: string
     }
 
     /**
+     * @return array<int, string>
+     */
+    public static function activeValues(): array
+    {
+        return array_map(
+            fn (self $status) => $status->value,
+            array_filter(self::cases(), fn (self $status) => ! $status->isTerminal()),
+        );
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function historyValues(): array
+    {
+        return array_map(
+            fn (self $status) => $status->value,
+            array_filter(self::cases(), fn (self $status) => $status->isTerminal()),
+        );
+    }
+
+    /**
      * @return array<int, self>
      */
     public function allowedTransitions(): array

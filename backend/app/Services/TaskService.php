@@ -20,7 +20,11 @@ class TaskService
         'pic.division',
         'members.division',
         'activities.user',
+        'submissions.user',
+        'checklists.completedBy',
     ];
+
+    public function __construct(private readonly NotificationService $notifications) {}
 
     /**
      * @param  array<string, mixed>  $attributes
@@ -42,6 +46,13 @@ class TaskService
 
             $this->record($task, $creator, 'created', null, TaskStatus::DRAFT);
 
+            $assigneeIds = array_values(array_unique(array_filter([
+                $task->pic_id,
+                ...$memberIds,
+            ])));
+
+            $this->notifications->taskAssigned($task, $creator, $assigneeIds);
+
             return $task->load(self::DETAIL_RELATIONS);
         });
     }
@@ -49,11 +60,13 @@ class TaskService
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function update(Task $task, array $attributes): Task
+    public function update(User $actor, Task $task, array $attributes): Task
     {
-        return DB::transaction(function () use ($task, $attributes) {
+        return DB::transaction(function () use ($actor, $task, $attributes) {
             $memberIds = $attributes['member_ids'] ?? null;
             unset($attributes['member_ids']);
+
+            $previousAssigneeIds = $task->assigneeIds();
 
             $task->update($attributes);
 
@@ -61,7 +74,22 @@ class TaskService
                 $task->members()->sync($memberIds);
             }
 
-            return $task->refresh()->load(self::DETAIL_RELATIONS);
+            $task->refresh();
+
+            $newAssigneeIds = array_values(array_diff(
+                $task->assigneeIds(),
+                $previousAssigneeIds,
+            ));
+
+            if ($newAssigneeIds !== []) {
+                $this->notifications->taskAssigned(
+                    $task,
+                    $actor,
+                    $newAssigneeIds,
+                );
+            }
+
+            return $task->load(self::DETAIL_RELATIONS);
         });
     }
 
@@ -88,6 +116,22 @@ class TaskService
             ]);
 
             $this->record($task, $actor, 'status_changed', $from, $status, $note);
+
+            if ($status === TaskStatus::OPEN) {
+                $this->notifications->taskAssigned(
+                    $task,
+                    $actor,
+                    $task->assigneeIds(),
+                    'Tugas telah dipublikasikan',
+                    "\"{$task->title}\" sudah dibuka dan siap dikerjakan.",
+                );
+            } elseif (in_array($status, [
+                TaskStatus::IN_REVIEW,
+                TaskStatus::REVISION_NEEDED,
+                TaskStatus::COMPLETED,
+            ], true)) {
+                $this->notifications->taskStatusChanged($task, $status, $actor);
+            }
 
             return $task->refresh()->load(self::DETAIL_RELATIONS);
         });

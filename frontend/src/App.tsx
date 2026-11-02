@@ -7,10 +7,12 @@ import { ButtonLink } from './components/ui/ButtonLink'
 import { Surface } from './components/ui/Surface'
 import { useAuth } from './hooks/useAuth'
 import { useHashRoute } from './hooks/useHashRoute'
+import { CalendarPage } from './pages/CalendarPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DivisionsPage } from './pages/DivisionsPage'
 import { LoginPage } from './pages/LoginPage'
 import { TaskDetailPage } from './pages/TaskDetailPage'
+import { TaskHistoryPage } from './pages/TaskHistoryPage'
 import { TasksPage } from './pages/TasksPage'
 import { UsersPage } from './pages/UsersPage'
 
@@ -42,7 +44,18 @@ function App() {
         user.role === 'admin' ? (
           <AccessDenied message="Admin tidak mengelola isi tugas." />
         ) : (
-          <TasksPage />
+          <TasksPage
+            key={`tasks-${route.create ? 'new' : 'list'}`}
+            create={route.create}
+          />
+        )
+      break
+    case 'taskHistory':
+      page =
+        user.role === 'admin' ? (
+          <AccessDenied message="Admin tidak mengelola isi tugas." />
+        ) : (
+          <TaskHistoryPage />
         )
       break
     case 'task':
@@ -50,8 +63,17 @@ function App() {
         user.role === 'admin' ? (
           <AccessDenied message="Admin tidak mengelola isi tugas." />
         ) : (
-          <TaskDetailPage id={route.id} />
+          <TaskDetailPage key={route.id} id={route.id} />
         )
+      break
+    case 'calendar':
+      page = (
+        <CalendarPage
+          key={`calendar-${route.month ?? 'current'}-${route.create ? 'new' : 'view'}`}
+          month={route.month}
+          create={route.create}
+        />
+      )
       break
     case 'users':
       page =

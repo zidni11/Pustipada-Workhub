@@ -66,9 +66,11 @@ export async function apiFetch<T>(path: string, init: ApiRequestInit = {}): Prom
   const { body, auth = true, headers: rawHeaders, ...rest } = init
 
   const headers = new Headers(rawHeaders)
+  const isFormData = body instanceof FormData
+
   headers.set('Accept', 'application/json')
 
-  if (body !== undefined) {
+  if (body !== undefined && !isFormData) {
     headers.set('Content-Type', 'application/json')
   }
 
@@ -84,7 +86,7 @@ export async function apiFetch<T>(path: string, init: ApiRequestInit = {}): Prom
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...rest,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     })
   } catch {
     throw new ApiError(0, 'Tidak dapat terhubung ke server. Pastikan backend berjalan.')

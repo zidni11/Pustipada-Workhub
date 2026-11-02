@@ -1,0 +1,50 @@
+.wrap {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 15;
+  width: 220px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+}
+
+.menu button {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.menu button + button {
+  border-top: 1px solid var(--border);
+}
+
+.menu button:hover {
+  background: var(--surface-2);
+}
+
+.menu strong {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.menu span {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.menu button:disabled {
+  opacity: 0.6;
+}

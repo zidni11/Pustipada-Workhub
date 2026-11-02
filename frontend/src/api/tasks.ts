@@ -25,8 +25,28 @@ export interface TaskSummary {
   counts: Record<TaskStatus, number>
 }
 
+const MAX_PAGES = 50
+
 export function listTasks(params: TaskListParams = {}): Promise<Paginated<Task>> {
   return apiFetch<Paginated<Task>>(`/tasks${toQueryString(params)}`)
+}
+
+export async function listAllTasks(
+  params: Omit<TaskListParams, 'page'> = {},
+): Promise<Task[]> {
+  const tasks: Task[] = []
+  let page = 1
+  let lastPage = 1
+
+  do {
+    const response = await listTasks({ ...params, page, per_page: 100 })
+
+    tasks.push(...response.data)
+    lastPage = response.meta.last_page
+    page += 1
+  } while (page <= lastPage && page <= MAX_PAGES)
+
+  return tasks
 }
 
 export function getTask(id: number): Promise<Resource<Task>> {
@@ -52,7 +72,7 @@ export function transitionTask(id: number, input: TransitionTaskInput): Promise<
 export async function getTaskSummary(): Promise<TaskSummary> {
   const entries = await Promise.all(
     TASK_STATUSES.map(async (status) => {
-      const response = await listTasks({ status })
+      const response = await listTasks({ status, per_page: 1 })
 
       return [status, response.meta.total] as const
     }),

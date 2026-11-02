@@ -10,6 +10,12 @@ import { PageHeader } from '../components/PageHeader'
 import { ErrorState, LoadingState } from '../components/PageState'
 import { Section } from '../components/Section'
 import { TaskFormModal } from '../components/TaskFormModal'
+import { ChecklistSection } from '../components/tasks/ChecklistSection'
+import { SubmissionSection } from '../components/tasks/SubmissionSection'
+import {
+  TaskDetailTabs,
+  type TaskDetailTab,
+} from '../components/tasks/TaskDetailTabs'
 import { ArrowLeftIcon, ArrowRightIcon } from '../components/ui/Arrows'
 import { Button } from '../components/ui/Button'
 import { ButtonLink } from '../components/ui/ButtonLink'
@@ -39,6 +45,7 @@ export function TaskDetailPage({ id }: { id: number }) {
     [canManage],
   )
 
+  const [activeTab, setActiveTab] = useState('overview')
   const [editing, setEditing] = useState(false)
   const [note, setNote] = useState('')
   const [pendingStatus, setPendingStatus] = useState<TaskStatus | null>(null)
@@ -79,9 +86,28 @@ export function TaskDetailPage({ id }: { id: number }) {
 
   const allowedTransitions = allowedTransitionsFor(task, user)
   const activities = task.activities ?? []
+  const tabs: TaskDetailTab[] = [
+    { id: 'overview', label: 'Ringkasan' },
+    {
+      id: 'checklist',
+      label: 'Checklist',
+      count: task.checklists?.length ?? 0,
+    },
+    {
+      id: 'proof',
+      label: 'Bukti',
+      count: task.submissions?.length ?? 0,
+    },
+  ]
 
   const updateTaskState = (updated: Task) => {
     taskResult.setData({ data: updated })
+  }
+
+  const refreshTask = () => {
+    void getTask(id)
+      .then((response) => taskResult.setData(response))
+      .catch(() => undefined)
   }
 
   const handleTransition = async (target: TaskStatus) => {
@@ -148,61 +174,97 @@ export function TaskDetailPage({ id }: { id: number }) {
         <Notice className={styles.notice}>{actionError}</Notice>
       ) : null}
 
+      <div className={styles.tabsBar}>
+        <TaskDetailTabs
+          tabs={tabs}
+          active={activeTab}
+          onChange={setActiveTab}
+        />
+      </div>
+
       <div className={styles.grid}>
         <div className={styles.main}>
-          <Section title="Deskripsi">
-            <p className={styles.description}>
-              {task.description ?? 'Belum ada deskripsi.'}
-            </p>
-          </Section>
+          <div
+            className={styles.tabPanel}
+            role="tabpanel"
+            id={`task-panel-${activeTab}`}
+            aria-labelledby={`task-tab-${activeTab}`}
+          >
+            {activeTab === 'overview' ? (
+              <>
+                <Section title="Deskripsi">
+                  <p className={styles.description}>
+                    {task.description ?? 'Belum ada deskripsi.'}
+                  </p>
+                </Section>
 
-          <Section title="Aktivitas" description="Riwayat pembuatan dan perubahan status.">
-            {activities.length === 0 ? (
-              <p className={styles.muted}>Belum ada aktivitas.</p>
+                <Section
+                  title="Aktivitas"
+                  description="Riwayat pembuatan dan perubahan status."
+                >
+                  {activities.length === 0 ? (
+                    <p className={styles.muted}>Belum ada aktivitas.</p>
+                  ) : (
+                    <ol className={styles.timeline}>
+                      {activities.map((activity) => (
+                        <li key={activity.id} className={styles.timelineItem}>
+                          <span className={styles.marker} aria-hidden="true" />
+                          <div className={styles.timelineBody}>
+                            <p className={styles.activityTitle}>
+                              <strong>{activity.user?.name ?? 'Sistem'}</strong>{' '}
+                              {activity.action === 'created'
+                                ? 'membuat tugas'
+                                : 'mengubah status'}
+                            </p>
+                            {activity.action === 'status_changed' ? (
+                              <p className={styles.statusChange}>
+                                <span>
+                                  {activity.from_status
+                                    ? TASK_STATUS_LABELS[activity.from_status]
+                                    : '-'}
+                                </span>
+                                <span className={styles.arrow} aria-hidden="true">
+                                  <ArrowRightIcon size={12} />
+                                </span>
+                                <span>
+                                  {activity.to_status
+                                    ? TASK_STATUS_LABELS[activity.to_status]
+                                    : '-'}
+                                </span>
+                              </p>
+                            ) : null}
+                            {activity.note ? (
+                              <p className={styles.note}>{activity.note}</p>
+                            ) : null}
+                            <time
+                              className={styles.time}
+                              dateTime={activity.created_at ?? undefined}
+                            >
+                              {formatDateTime(activity.created_at)}
+                            </time>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </Section>
+              </>
+            ) : activeTab === 'checklist' ? (
+              <ChecklistSection
+                key={`${task.id}-${task.updated_at ?? ''}`}
+                task={task}
+                user={user}
+                onChanged={refreshTask}
+              />
             ) : (
-              <ol className={styles.timeline}>
-                {activities.map((activity) => (
-                  <li key={activity.id} className={styles.timelineItem}>
-                    <span className={styles.marker} aria-hidden="true" />
-                    <div className={styles.timelineBody}>
-                      <p className={styles.activityTitle}>
-                        <strong>{activity.user?.name ?? 'Sistem'}</strong>{' '}
-                        {activity.action === 'created'
-                          ? 'membuat tugas'
-                          : 'mengubah status'}
-                      </p>
-                      {activity.action === 'status_changed' ? (
-                        <p className={styles.statusChange}>
-                          <span>
-                            {activity.from_status
-                              ? TASK_STATUS_LABELS[activity.from_status]
-                              : '—'}
-                          </span>
-                          <span className={styles.arrow} aria-hidden="true">
-                            <ArrowRightIcon size={12} />
-                          </span>
-                          <span>
-                            {activity.to_status
-                              ? TASK_STATUS_LABELS[activity.to_status]
-                              : '—'}
-                          </span>
-                        </p>
-                      ) : null}
-                      {activity.note ? (
-                        <p className={styles.note}>{activity.note}</p>
-                      ) : null}
-                      <time
-                        className={styles.time}
-                        dateTime={activity.created_at ?? undefined}
-                      >
-                        {formatDateTime(activity.created_at)}
-                      </time>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <SubmissionSection
+                key={`${task.id}-${task.updated_at ?? ''}`}
+                task={task}
+                user={user}
+                onChanged={refreshTask}
+              />
             )}
-          </Section>
+          </div>
         </div>
 
         <aside className={styles.side}>

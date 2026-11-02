@@ -22,11 +22,22 @@
   margin-bottom: var(--space-4);
 }
 
+.tabsBar {
+  margin-bottom: var(--space-4);
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
   align-items: start;
   gap: var(--space-4);
+}
+
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
 }
 
 .main,
@@ -187,6 +198,7 @@
 .mono {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
 }
 
@@ -250,16 +262,12 @@
     display: contents;
   }
 
-  .main > :first-child {
+  .main > * {
     order: 1;
   }
 
   .side {
     order: 2;
-  }
-
-  .main > :last-child {
-    order: 3;
   }
 }
 

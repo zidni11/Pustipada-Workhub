@@ -2,17 +2,19 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  display: none;
+  display: flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 56px;
-  padding: var(--space-1) var(--space-3);
+  min-height: 64px;
+  padding: var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
 }
 
 .menuButton {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -39,12 +41,13 @@
 }
 
 .brand {
-  display: flex;
+  display: none;
   flex-direction: column;
   line-height: 1.15;
 }
 
 .brand strong {
+  font-family: var(--font-heading);
   font-size: var(--text-base);
   font-weight: var(--weight-semibold);
 }
@@ -56,8 +59,107 @@
   letter-spacing: var(--tracking-wide);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.palette {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 230px;
+  height: 36px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-align: left;
+  transition:
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+}
+
+.palette:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-3);
+}
+
+.paletteIcon {
+  display: inline-flex;
+  flex: 0 0 15px;
+}
+
+.paletteIcon svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8px;
+  stroke-linecap: round;
+}
+
+.paletteLabel {
+  flex: 1;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  background: var(--surface);
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.02em;
+}
+
 @media (max-width: 900px) {
   .topbar {
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .menuButton,
+  .brand {
     display: flex;
+  }
+
+  .brand {
+    display: flex;
+  }
+
+  .palette {
+    min-width: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .palette:hover {
+    background: var(--surface-3);
+  }
+
+  .paletteLabel,
+  .kbd {
+    display: none;
+  }
+
+  .paletteIcon {
+    flex-basis: 19px;
+  }
+
+  .paletteIcon svg {
+    width: 19px;
+    height: 19px;
   }
 }

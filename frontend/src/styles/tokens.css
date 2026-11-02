@@ -3,9 +3,10 @@
 
 :root {
   /* Typography */
-  --font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular,
-    Menlo, Consolas, monospace;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --font-sans: var(--font-body);
 
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
@@ -57,27 +58,29 @@
   --radius-lg: 20px;
 
   /* Surfaces and text */
-  --bg: #f1f5f9;
+  --bg: #f2f4f4;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --surface-3: #eef2f6;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --text-soft: #94a3b8;
+  --surface-2: #f7f9f9;
+  --surface-3: #e9eded;
+  --border: #ccd0cf;
+  --border-strong: #aeb8b7;
+  --text: #182f40;
+  --text-muted: #526675;
+  --text-soft: #607381;
 
   /* Brand */
-  --primary: #0f766e;
-  --primary-strong: #115e59;
-  --primary-soft: #ccfbf1;
-  --primary-ink: #134e4a;
+  --primary: #0369a1;
+  --primary-strong: #075985;
+  --primary-soft: #e0f2fe;
+  --primary-ink: #0c4a6e;
   --on-primary: #ffffff;
-  --ring-soft: 0 0 0 3px rgb(13 148 136 / 18%);
+  --accent: #0ea5e9;
+  --accent-bright: #38bdf8;
+  --ring-soft: 0 0 0 3px rgb(3 105 161 / 22%);
 
   /* Feedback */
-  --danger: #dc2626;
-  --danger-strong: #b91c1c;
+  --danger: #b91c1c;
+  --danger-strong: #991b1b;
   --danger-soft: #fee2e2;
   --on-destructive: #ffffff;
   --warning: #b45309;
@@ -88,80 +91,35 @@
   --info-soft: #e0f2fe;
 
   /* Sidebar and overlay */
-  --sidebar: #0b2a2a;
-  --sidebar-text: #e2f5f1;
-  --sidebar-muted: #8fbcb5;
-  --sidebar-active: #5eead4;
-  --sidebar-line: rgb(255 255 255 / 10%);
-  --sidebar-line-strong: rgb(255 255 255 / 18%);
-  --sidebar-hover: rgb(255 255 255 / 6%);
-  --scrim: rgb(2 18 27 / 55%);
+  --sidebar: #182f40;
+  --sidebar-end: #1f3b50;
+  --sidebar-text: #ccd0cf;
+  --sidebar-muted: #a8b7b8;
+  --sidebar-active: #ffffff;
+  --sidebar-accent: #38bdf8;
+  --sidebar-line: rgb(204 208 207 / 18%);
+  --sidebar-line-strong: rgb(204 208 207 / 30%);
+  --sidebar-hover: rgb(204 208 207 / 14%);
+  --sidebar-selected: rgb(56 189 248 / 14%);
+  --scrim: rgb(24 47 64 / 55%);
 
   /* Elevation */
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
-  --shadow-md: 0 10px 30px -12px rgb(15 23 42 / 18%);
-  --shadow-pop: 0 24px 60px -24px rgb(2 18 27 / 45%);
+  --shadow-sm: 0 1px 2px rgb(24 47 64 / 5%);
+  --shadow-card: 0 6px 24px -4px rgb(24 47 64 / 7%);
+  --shadow-md: 0 10px 30px -12px rgb(24 47 64 / 16%);
+  --shadow-pop: 0 24px 60px -24px rgb(24 47 64 / 32%);
 
   /* Semantic badge tones */
-  --tone-neutral-bg: #f1f5f9;
-  --tone-neutral-fg: #475569;
+  --tone-neutral-bg: #edf1f1;
+  --tone-neutral-fg: #526675;
   --tone-info-bg: #e0f2fe;
-  --tone-info-fg: #0369a1;
+  --tone-info-fg: #075985;
   --tone-warning-bg: #fef3c7;
-  --tone-warning-fg: #b45309;
+  --tone-warning-fg: #92400e;
   --tone-success-bg: #dcfce7;
-  --tone-success-fg: #15803d;
+  --tone-success-fg: #166534;
   --tone-danger-bg: #fee2e2;
-  --tone-danger-fg: #b91c1c;
+  --tone-danger-fg: #991b1b;
 
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b1220;
-    --surface: #111a2c;
-    --surface-2: #0f172a;
-    --surface-3: #16223a;
-    --border: #1f2d47;
-    --border-strong: #2c3e5e;
-    --text: #e2e8f0;
-    --text-muted: #94a3b8;
-    --text-soft: #64748b;
-
-    --primary: #2dd4bf;
-    --primary-strong: #5eead4;
-    --primary-soft: #134e4a;
-    --primary-ink: #99f6e4;
-    --on-primary: #03201d;
-    --ring-soft: 0 0 0 3px rgb(45 212 191 / 22%);
-
-    --danger: #f87171;
-    --danger-strong: #fca5a5;
-    --danger-soft: rgb(239 68 68 / 14%);
-    --on-destructive: #1f0a0a;
-    --warning: #fbbf24;
-    --warning-soft: rgb(245 158 11 / 14%);
-    --success: #4ade80;
-    --success-soft: rgb(34 197 94 / 14%);
-    --info: #38bdf8;
-    --info-soft: rgb(14 165 233 / 14%);
-
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-    --shadow-md: 0 20px 40px -18px rgb(0 0 0 / 70%);
-    --shadow-pop: 0 24px 60px -20px rgb(0 0 0 / 75%);
-
-    --tone-neutral-bg: rgb(148 163 184 / 16%);
-    --tone-neutral-fg: #cbd5e1;
-    --tone-info-bg: rgb(14 165 233 / 16%);
-    --tone-info-fg: #7dd3fc;
-    --tone-warning-bg: rgb(245 158 11 / 16%);
-    --tone-warning-fg: #fcd34d;
-    --tone-success-bg: rgb(34 197 94 / 16%);
-    --tone-success-fg: #86efac;
-    --tone-danger-bg: rgb(239 68 68 / 16%);
-    --tone-danger-fg: #fca5a5;
-
-    color-scheme: dark;
-  }
 }

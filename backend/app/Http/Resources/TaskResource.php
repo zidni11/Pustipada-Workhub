@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -36,6 +37,23 @@ class TaskResource extends JsonResource
             'due_date' => $this->due_date?->toDateString(),
             'completed_at' => $this->completed_at?->toIso8601String(),
             'activities' => TaskActivityResource::collection($this->whenLoaded('activities')),
+            'submissions' => $this->whenLoaded('submissions', function () use ($request) {
+                $user = $request->user();
+
+                if (
+                    $user === null
+                    || ($user->role !== UserRole::PIMPINAN && ! $this->isAssignedTo($user))
+                ) {
+                    return [];
+                }
+
+                return TaskSubmissionResource::collection($this->submissions);
+            }),
+            'checklists' => TaskChecklistResource::collection($this->whenLoaded('checklists')),
+            'checklist_progress' => $this->whenLoaded(
+                'checklists',
+                fn () => $this->checklistProgress(),
+            ),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

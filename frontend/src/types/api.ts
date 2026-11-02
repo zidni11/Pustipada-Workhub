@@ -13,6 +13,106 @@ export type TaskPriority = 'low' | 'medium' | 'high'
 
 export type TaskActivityAction = 'created' | 'status_changed'
 
+export type TaskSubmissionType = 'file' | 'link'
+
+export interface TaskSubmission {
+  id: number
+  task_id: number
+  type: TaskSubmissionType
+  type_label: string
+  title: string
+  url: string | null
+  file_url: string | null
+  original_name: string | null
+  mime_type: string | null
+  file_size: number | null
+  user?: User
+  created_at: string | null
+}
+
+export interface TaskChecklist {
+  id: number
+  task_id: number
+  title: string
+  is_completed: boolean
+  completed_by?: User | null
+  completed_at: string | null
+  created_at: string | null
+}
+
+export interface ChecklistProgress {
+  total: number
+  completed: number
+  percentage: number
+}
+
+export type CommunityEventCategory = 'meeting' | 'lunch' | 'celebration' | 'other'
+
+export interface CommunityEvent {
+  id: number
+  title: string
+  description: string | null
+  category: CommunityEventCategory
+  category_label: string
+  location: string | null
+  start_at: string
+  end_at: string | null
+  division_id: number | null
+  division?: Division | null
+  creator?: User | null
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface CalendarTask {
+  id: number
+  title: string
+  status: TaskStatus
+  status_label: string
+  priority: TaskPriority
+  due_date: string | null
+  division?: Division
+  pic?: User | null
+  target_url: string
+}
+
+export interface CalendarReminder {
+  type: 'task' | 'event'
+  id: number
+  title: string
+  date: string | null
+  label: string
+  target_url: string
+}
+
+export interface CalendarResponse {
+  month: string
+  tasks: CalendarTask[]
+  events: CommunityEvent[]
+  upcoming_reminders: CalendarReminder[]
+}
+
+export type NotificationType =
+  | 'task_assigned'
+  | 'task_status_changed'
+  | 'event_created'
+  | 'account_approved'
+
+export interface UserNotification {
+  id: number
+  type: NotificationType
+  title: string
+  message: string
+  target_url: string | null
+  read_at: string | null
+  created_at: string | null
+}
+
+export interface NotificationListResponse {
+  data: UserNotification[]
+  unread_count: number
+}
+
 export interface Division {
   id: number
   name: string
@@ -66,6 +166,9 @@ export interface Task {
   due_date: string | null
   completed_at: string | null
   activities?: TaskActivity[]
+  submissions?: TaskSubmission[]
+  checklists?: TaskChecklist[]
+  checklist_progress?: ChecklistProgress
   created_at: string | null
   updated_at: string | null
 }
@@ -135,6 +238,12 @@ export interface TaskListParams {
   pic_id?: number
   search?: string
   page?: number
+  per_page?: number
+  view_mode?: 'active' | 'history' | 'all'
+  assignment_role?: 'pic' | 'supporting'
+  date_field?: 'activity' | 'created_at'
+  date_from?: string
+  date_to?: string
 }
 
 export interface CreateTaskInput {
@@ -153,6 +262,25 @@ export interface TransitionTaskInput {
   status: TaskStatus
   note?: string | null
 }
+
+export interface CreateTaskSubmissionInput {
+  type: TaskSubmissionType
+  title: string
+  url?: string
+  file?: File
+}
+
+export interface CreateCommunityEventInput {
+  title: string
+  description?: string | null
+  category: CommunityEventCategory
+  location?: string | null
+  start_at: string
+  end_at?: string | null
+  division_id?: number | null
+}
+
+export type UpdateCommunityEventInput = Partial<CreateCommunityEventInput>
 
 export interface UserListParams {
   role?: UserRole

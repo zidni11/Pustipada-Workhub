@@ -77,6 +77,21 @@ class TaskTransitionTest extends TestCase
             ->assertJsonPath('data.status', 'in_review');
     }
 
+    public function test_supporting_member_cannot_submit_task_for_review(): void
+    {
+        [$pimpinan, $task] = $this->scenario(TaskStatus::IN_PROGRESS);
+
+        $member = User::factory()->anggota()->create([
+            'division_id' => $task->division_id,
+        ]);
+        $task->members()->attach($member->id);
+
+        Sanctum::actingAs($member);
+
+        $this->patchJson("/api/tasks/{$task->id}/status", ['status' => 'in_review'])
+            ->assertForbidden();
+    }
+
     public function test_non_assigned_anggota_cannot_change_status(): void
     {
         [$pimpinan, $task] = $this->scenario(TaskStatus::OPEN);

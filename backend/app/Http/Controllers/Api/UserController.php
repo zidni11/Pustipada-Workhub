@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly NotificationService $notifications) {}
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = User::query()->with('division');
@@ -57,14 +60,20 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): UserResource
     {
         $attributes = $request->validated();
+        $wasInactive = ! $user->is_active;
 
         if (array_key_exists('password', $attributes) && blank($attributes['password'])) {
             unset($attributes['password']);
         }
 
         $user->update($attributes);
+        $user->refresh();
 
-        return new UserResource($user->refresh()->load('division'));
+        if ($wasInactive && $user->is_active) {
+            $this->notifications->accountApproved($user);
+        }
+
+        return new UserResource($user->load('division'));
     }
 
     public function destroy(Request $request, User $user): Response

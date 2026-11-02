@@ -3,15 +3,29 @@
   min-height: 100vh;
   place-items: center;
   padding: var(--space-5);
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 12% 8%, var(--primary-soft), transparent 36%),
+    radial-gradient(circle at 88% 92%, var(--tone-neutral-bg), transparent 34%),
+    var(--bg);
 }
 
 .card {
+  position: relative;
+  overflow: hidden;
   width: min(480px, 100%);
   padding: var(--space-6);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent-bright));
+  content: '';
 }
 
 .header {
@@ -34,8 +48,9 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--primary);
   border-radius: var(--r-sm);
+  background: var(--primary-soft);
   color: var(--primary);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -50,6 +65,7 @@
 }
 
 .brandText strong {
+  font-family: var(--font-heading);
   font-size: var(--text-base);
   font-weight: var(--weight-semibold);
 }

@@ -3,6 +3,7 @@ import type { AppRoute } from '../../hooks/useHashRoute'
 import { navigate, routePaths } from '../../hooks/useHashRoute'
 import { useAuth } from '../../hooks/useAuth'
 import type { User } from '../../types/api'
+import { CommandPalette } from '../CommandPalette'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import styles from './AppLayout.module.css'
@@ -16,9 +17,35 @@ interface AppLayoutProps {
 export function AppLayout({ user, route, children }: AppLayoutProps) {
   const { logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const sidebarRef = useRef<HTMLElement>(null)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const contentRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        (event.metaKey || event.ctrlKey)
+        && event.key.toLowerCase() === 'k'
+      ) {
+        event.preventDefault()
+        setSidebarOpen(false)
+        setPaletteOpen((current) => !current)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  useEffect(() => {
+    const closePalette = () => setPaletteOpen(false)
+
+    window.addEventListener('hashchange', closePalette)
+
+    return () => window.removeEventListener('hashchange', closePalette)
+  }, [])
 
   useEffect(() => {
     if (!sidebarOpen) return
@@ -102,11 +129,19 @@ export function AppLayout({ user, route, children }: AppLayoutProps) {
           open={sidebarOpen}
           onOpen={() => setSidebarOpen(true)}
           menuButtonRef={menuButtonRef}
+          onOpenPalette={() => setPaletteOpen(true)}
         />
         <main id="main-content" ref={contentRef} tabIndex={-1} className={styles.content}>
           {children}
         </main>
       </div>
+
+      {paletteOpen ? (
+        <CommandPalette
+          user={user}
+          onClose={() => setPaletteOpen(false)}
+        />
+      ) : null}
     </div>
   )
 }

@@ -1,8 +1,17 @@
+import type { ReactNode } from 'react'
 import { getTaskSummary, listTasks } from '../api/tasks'
 import { listDivisions } from '../api/divisions'
 import { listUsers } from '../api/users'
 import { Avatar } from '../components/Avatar'
 import { ActiveBadge, RoleBadge, StatusBadge } from '../components/Badges'
+import {
+  BellIcon,
+  BuildingIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  TasksIcon,
+  UsersIcon,
+} from '../components/layout/icons'
 import { PageHeader } from '../components/PageHeader'
 import { Badge, type BadgeTone } from '../components/ui/Badge'
 import { ButtonLink } from '../components/ui/ButtonLink'
@@ -28,13 +37,41 @@ export function DashboardPage() {
 
 function TaskDashboard({ user }: { user: User }) {
   const summary = useAsync(() => getTaskSummary(), [])
-  const recent = useAsync(() => listTasks({ page: 1 }), [])
+  const recent = useAsync(
+    () => listTasks({ view_mode: 'active', page: 1 }),
+    [],
+  )
 
-  const cards: Array<{ label: string; value: number | undefined; tone: BadgeTone }> = [
-    { label: 'Total tugas', value: summary.data?.total, tone: 'neutral' },
-    { label: 'Dikerjakan', value: summary.data?.counts.in_progress, tone: 'info' },
-    { label: 'Menunggu review', value: summary.data?.counts.in_review, tone: 'warning' },
-    { label: 'Selesai', value: summary.data?.counts.completed, tone: 'success' },
+  const cards: Array<{
+    label: string
+    value: number | undefined
+    tone: BadgeTone
+    icon: ReactNode
+  }> = [
+    {
+      label: 'Total tugas',
+      value: summary.data?.total,
+      tone: 'info',
+      icon: <TasksIcon />,
+    },
+    {
+      label: 'Dikerjakan',
+      value: summary.data?.counts.in_progress,
+      tone: 'info',
+      icon: <ClockIcon />,
+    },
+    {
+      label: 'Menunggu review',
+      value: summary.data?.counts.in_review,
+      tone: 'warning',
+      icon: <BellIcon />,
+    },
+    {
+      label: 'Selesai',
+      value: summary.data?.counts.completed,
+      tone: 'success',
+      icon: <CheckCircleIcon />,
+    },
   ]
 
   const statuses = Object.keys(TASK_STATUS_LABELS) as Array<keyof typeof TASK_STATUS_LABELS>
@@ -65,6 +102,7 @@ function TaskDashboard({ user }: { user: User }) {
               label={card.label}
               value={card.value ?? 0}
               tone={card.tone}
+              icon={card.icon}
               loading={summary.loading}
             />
           ))}
@@ -178,25 +216,29 @@ function AdminDashboard() {
           <Stat
             label="Total pengguna"
             value={users.data?.meta.total ?? 0}
-            tone="neutral"
+            tone="info"
+            icon={<UsersIcon />}
             loading={users.loading}
           />
           <Stat
             label="Total divisi"
             value={divisions.data?.data.length ?? 0}
-            tone="info"
+            tone="neutral"
+            icon={<BuildingIcon />}
             loading={divisions.loading}
           />
           <Stat
             label="Divisi aktif"
             value={activeDivisions}
             tone="success"
+            icon={<CheckCircleIcon />}
             loading={divisions.loading}
           />
           <Stat
             label="Akun nonaktif"
             value={inactiveUsers}
             tone="warning"
+            icon={<ClockIcon />}
             hint="halaman ini"
             loading={users.loading}
           />

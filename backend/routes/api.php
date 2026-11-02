@@ -1,9 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CalendarController;
+use App\Http\Controllers\Api\CommunityEventController;
 use App\Http\Controllers\Api\DivisionController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\TaskChecklistController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TaskStatusController;
+use App\Http\Controllers\Api\TaskSubmissionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -38,9 +43,20 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     Route::get('/divisions', [DivisionController::class, 'index']);
 
+    Route::get('/events', [CommunityEventController::class, 'index']);
+    Route::get('/calendar', CalendarController::class);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+
     Route::middleware('role:admin,pimpinan')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::get('/users/{user}', [UserController::class, 'show']);
+
+        Route::post('/events', [CommunityEventController::class, 'store']);
+        Route::match(['put', 'patch'], '/events/{event}', [CommunityEventController::class, 'update']);
+        Route::delete('/events/{event}', [CommunityEventController::class, 'destroy']);
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -57,6 +73,13 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/tasks', [TaskController::class, 'index']);
         Route::get('/tasks/{task}', [TaskController::class, 'show']);
         Route::patch('/tasks/{task}/status', TaskStatusController::class);
+
+        Route::post('/tasks/{task}/submissions', [TaskSubmissionController::class, 'store']);
+        Route::delete('/tasks/{task}/submissions/{submission}', [TaskSubmissionController::class, 'destroy']);
+
+        Route::post('/tasks/{task}/checklists', [TaskChecklistController::class, 'store']);
+        Route::patch('/tasks/{task}/checklists/{checklist}', [TaskChecklistController::class, 'toggle']);
+        Route::delete('/tasks/{task}/checklists/{checklist}', [TaskChecklistController::class, 'destroy']);
     });
 
     Route::middleware('role:pimpinan')->group(function () {
