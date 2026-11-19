@@ -33,7 +33,7 @@ PUSTIPADA WorkHub hadir untuk menggantikan pencatatan instruksi kerja manual yan
 
 **Tambah Pengguna**
 
-![TambahPengguna](docs/admin/TambahPengguna.png) 
+![TambahPengguna](docs/admin/TambahAnggota.png) 
 
 **Kalender Page**
 
