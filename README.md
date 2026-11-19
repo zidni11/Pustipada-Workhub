@@ -10,6 +10,17 @@ PUSTIPADA WorkHub hadir untuk menggantikan pencatatan instruksi kerja manual yan
 
 * **Manajemen Tugas & *State Machine*:** Mendukung siklus hidup tugas secara terstruktur mulai dari `Draft`, `Open`, `In Progress`, `In Review`, `Revision Needed`, `Completed`, hingga `Cancelled`.
 
+## Application Preview
+### 1. Authentication
+
+**Login Page**
+
+![Login](docs/authentication/login.png)
+
+**Register Page**
+
+![Register](docs/uthentication/register.png)
+
 * **Penunjukan PIC & Pembagian Anggota:** Pimpinan/Admin dapat menunjuk 1 Anggota sebagai *Person in Charge* (PIC) utama sekaligus menambahkan anggota tim pendukung.
 
 * **Submisi Bukti Kerja (*Work Proof*):** Anggota wajib melampirkan berkas dokumen, gambar, atau tautan bukti penyelesaian sebelum tugas dapat ditinjau oleh Pimpinan.
