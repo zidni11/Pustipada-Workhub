@@ -19,7 +19,92 @@ PUSTIPADA WorkHub hadir untuk menggantikan pencatatan instruksi kerja manual yan
 
 **Register Page**
 
-![Register](docs/uthentication/register.png)
+![Register](docs/athentication/register.png)
+
+### 2. Admin
+
+**Dashboard Page**
+
+![Dashboard] (docs/admin/Dashboard.png)
+
+**Pengguna Page**
+
+![Pengguna] (docs/admin/Pengguna.png)
+
+**Tambah Pengguna**
+
+![TambahPengguna] (docs/admin/TambahPengguna.png) 
+
+**Kalender Page**
+
+![Kalender] (docs/admin/Kalender.png)
+
+**Divisi page**
+
+![Divisi] (docs/admin/Divisi.png)
+
+**Tambah Divisi**
+
+![TambahDivisi] (docs/admin/TambahDivisi.png)
+
+
+### 3. Pimpinan
+
+**Dashboard page**
+
+![Dashboard] (docs/pimpinan/Dashboard.png)
+
+**Kalender Page**
+
+![kalender] (docs/pimpinan/Kalender.png)
+
+**Tambah Acara Oleh Pimpinan**
+
+![Tambah Acara] (docs/pimpinan/TambahAcara.png)
+
+**Tugas page**
+
+![Tugas] (docs/pimpinan/Tugas.png)
+
+**Tambah Tugas**
+
+![TambahTugas] (docs/pimpinan/TambahTugas.png)
+
+**Tambah Anggota Pendukung Tugas**
+
+![TambahAnggotaPendukung] (docs/pimpinan/AnggotaPendukung.png)
+
+**Lihat Tugas**
+
+![LihatTugas] (docs/pimpinan/LihatTugas.png)
+
+**Riwayat Tugas Page**
+
+![RiwayatTugas] (docs/pimpinan/RiwayatTugas.png)
+
+### 4. Anggota
+
+**Dashboard Page**
+
+![Dashboard] (docs/anggota/Dashboard.png)
+
+**Kalender Page**
+
+![Kalender] (docs/anggota/Dashboard.png)
+
+**Tugas Page**
+
+![Tugas] (docs/anggota/Tugas.png)
+
+**Riwayat Tugas Page**
+
+![RiwayatTugas] (docs/anggota/RiwayatTugas.png)
+
+### 5. Notification
+
+**Notification**
+
+![Notificarion] (docs/notifications/Notifikasi.png)
 
 * **Penunjukan PIC & Pembagian Anggota:** Pimpinan/Admin dapat menunjuk 1 Anggota sebagai *Person in Charge* (PIC) utama sekaligus menambahkan anggota tim pendukung.
 
