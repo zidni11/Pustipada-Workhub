@@ -60,7 +60,7 @@ PUSTIPADA WorkHub hadir untuk menggantikan pencatatan instruksi kerja manual yan
 
 **Tambah Acara Oleh Pimpinan**
 
-![Tambah Acara](docs/pimpinan/TambahAcara.png)
+![Tambah Acara](docs/pimpinan/TambahAcaraa.png)
 
 **Tugas page**
 
